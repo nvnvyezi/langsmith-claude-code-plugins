@@ -3,10 +3,18 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { loadConfig } from "./config.js";
+import { execSync } from "node:child_process";
+
+vi.mock("node:child_process", { spy: true });
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("loadConfig", () => {
   const originalEnv = { ...process.env };
   let tmpHome: string;
+  const cwd = "/tmp/langsmith-claude-code-plugins/cwd";
 
   beforeEach(() => {
     // Clear relevant env vars
@@ -36,58 +44,58 @@ describe("loadConfig", () => {
   it("reads CC_LANGSMITH_API_KEY first", () => {
     process.env.CC_LANGSMITH_API_KEY = "cc-key";
     process.env.LANGSMITH_API_KEY = "fallback-key";
-    expect(loadConfig().apiKey).toBe("cc-key");
+    expect(loadConfig({ cwd }).apiKey).toBe("cc-key");
   });
 
   it("falls back to LANGSMITH_API_KEY", () => {
     process.env.LANGSMITH_API_KEY = "fallback-key";
-    expect(loadConfig().apiKey).toBe("fallback-key");
+    expect(loadConfig({ cwd }).apiKey).toBe("fallback-key");
   });
 
   it("returns empty string when no API key set", () => {
-    expect(loadConfig().apiKey).toBe("");
+    expect(loadConfig({ cwd }).apiKey).toBe("");
   });
 
   it("defaults project to 'claude-code'", () => {
-    expect(loadConfig().project).toBe("claude-code");
+    expect(loadConfig({ cwd }).project).toBe("claude-code");
   });
 
   it("reads custom project name", () => {
     process.env.CC_LANGSMITH_PROJECT = "my-project";
-    expect(loadConfig().project).toBe("my-project");
+    expect(loadConfig({ cwd }).project).toBe("my-project");
   });
 
   it("defaults API base URL", () => {
-    expect(loadConfig().apiBaseUrl).toBe("https://api.smith.langchain.com");
+    expect(loadConfig({ cwd }).apiBaseUrl).toBe("https://api.smith.langchain.com");
   });
 
   it("reads custom API base URL", () => {
     process.env.LANGSMITH_ENDPOINT = "https://custom.api.com";
-    expect(loadConfig().apiBaseUrl).toBe("https://custom.api.com");
+    expect(loadConfig({ cwd }).apiBaseUrl).toBe("https://custom.api.com");
   });
 
   it("reads custom state file path", () => {
     process.env.STATE_FILE = "/custom/state.json";
-    expect(loadConfig().stateFilePath).toBe("/custom/state.json");
+    expect(loadConfig({ cwd }).stateFilePath).toBe("/custom/state.json");
   });
 
   it("defaults debug to false", () => {
-    expect(loadConfig().debug).toBe(false);
+    expect(loadConfig({ cwd }).debug).toBe(false);
   });
 
   it("enables debug with 'true'", () => {
     process.env.CC_LANGSMITH_DEBUG = "true";
-    expect(loadConfig().debug).toBe(true);
+    expect(loadConfig({ cwd }).debug).toBe(true);
   });
 
   it("enables debug case-insensitively", () => {
     process.env.CC_LANGSMITH_DEBUG = "TRUE";
-    expect(loadConfig().debug).toBe(true);
+    expect(loadConfig({ cwd }).debug).toBe(true);
   });
 
   it("does not enable debug with other values", () => {
     process.env.CC_LANGSMITH_DEBUG = "1";
-    expect(loadConfig().debug).toBe(false);
+    expect(loadConfig({ cwd }).debug).toBe(false);
   });
 
   it("parses CC_LANGSMITH_RUNS_ENDPOINTS as JSON array", () => {
@@ -98,7 +106,7 @@ describe("loadConfig", () => {
         projectName: "project-prod",
       },
     ]);
-    const config = loadConfig();
+    const config = loadConfig({ cwd });
     expect(config.replicas).toBeDefined();
     expect(config.replicas).toHaveLength(1);
     expect(config.replicas?.[0]).toEqual({
@@ -122,20 +130,20 @@ describe("loadConfig", () => {
         updates: { metadata: { environment: "staging" } },
       },
     ]);
-    const config = loadConfig();
+    const config = loadConfig({ cwd });
     expect(config.replicas).toHaveLength(2);
     expect(config.replicas?.[1].updates).toEqual({ metadata: { environment: "staging" } });
   });
 
   it("returns undefined replicas when CC_LANGSMITH_RUNS_ENDPOINTS not set", () => {
-    expect(loadConfig().replicas).toBeUndefined();
+    expect(loadConfig({ cwd }).replicas).toBeUndefined();
   });
 
   it("handles invalid JSON in CC_LANGSMITH_RUNS_ENDPOINTS gracefully", () => {
     const originalError = console.error;
     console.error = vi.fn();
     process.env.CC_LANGSMITH_RUNS_ENDPOINTS = "not valid json";
-    const config = loadConfig();
+    const config = loadConfig({ cwd });
     // Should not throw and replicas should be undefined
     expect(config.replicas).toBeUndefined();
     console.error = originalError;
@@ -146,7 +154,7 @@ describe("loadConfig", () => {
       pr_url: "https://github.com/org/repo/pull/42",
       pr_author: "octocat",
     });
-    const config = loadConfig();
+    const config = loadConfig({ cwd });
     expect(config.customMetadata).toMatchObject({
       pr_url: "https://github.com/org/repo/pull/42",
       pr_author: "octocat",
@@ -155,7 +163,7 @@ describe("loadConfig", () => {
   });
 
   it("populates customMetadata with identity fields when CC_LANGSMITH_METADATA not set", () => {
-    const config = loadConfig();
+    const config = loadConfig({ cwd });
     // local_username always resolves (at minimum to "unknown")
     expect(config.customMetadata?.local_username).toEqual(expect.any(String));
   });
@@ -164,7 +172,7 @@ describe("loadConfig", () => {
     const originalError = console.error;
     console.error = vi.fn();
     process.env.CC_LANGSMITH_METADATA = "not valid json";
-    const config = loadConfig();
+    const config = loadConfig({ cwd });
     // Falls back to identity-only metadata
     expect(config.customMetadata).toMatchObject({ local_username: expect.any(String) });
     expect(config.customMetadata).not.toHaveProperty("anthropic_user_id");
@@ -175,7 +183,7 @@ describe("loadConfig", () => {
     const originalError = console.error;
     console.error = vi.fn();
     process.env.CC_LANGSMITH_METADATA = '["not", "an", "object"]';
-    const config = loadConfig();
+    const config = loadConfig({ cwd });
     expect(config.customMetadata).toMatchObject({ local_username: expect.any(String) });
     console.error = originalError;
   });
@@ -184,7 +192,7 @@ describe("loadConfig", () => {
     const originalError = console.error;
     console.error = vi.fn();
     process.env.CC_LANGSMITH_METADATA = '"just a string"';
-    const config = loadConfig();
+    const config = loadConfig({ cwd });
     expect(config.customMetadata).toMatchObject({ local_username: expect.any(String) });
     console.error = originalError;
   });
@@ -195,7 +203,7 @@ describe("loadConfig", () => {
         join(tmpHome, ".claude.json"),
         JSON.stringify({ userID: "abc123hashed_user_id" }),
       );
-      const config = loadConfig();
+      const config = loadConfig({ cwd });
       expect(config.customMetadata).toMatchObject({
         anthropic_user_id: "abc123hashed_user_id",
         local_username: expect.any(String),
@@ -205,7 +213,7 @@ describe("loadConfig", () => {
     it("merges anthropic_user_id with CC_LANGSMITH_METADATA", () => {
       writeFileSync(join(tmpHome, ".claude.json"), JSON.stringify({ userID: "user-xyz" }));
       process.env.CC_LANGSMITH_METADATA = JSON.stringify({ pr_author: "octocat" });
-      const config = loadConfig();
+      const config = loadConfig({ cwd });
       expect(config.customMetadata).toMatchObject({
         anthropic_user_id: "user-xyz",
         pr_author: "octocat",
@@ -216,13 +224,13 @@ describe("loadConfig", () => {
     it("user-supplied CC_LANGSMITH_METADATA overrides anthropic_user_id on conflict", () => {
       writeFileSync(join(tmpHome, ".claude.json"), JSON.stringify({ userID: "auto-id" }));
       process.env.CC_LANGSMITH_METADATA = JSON.stringify({ anthropic_user_id: "manual-id" });
-      const config = loadConfig();
+      const config = loadConfig({ cwd });
       expect(config.customMetadata?.anthropic_user_id).toBe("manual-id");
     });
 
     it("omits anthropic_user_id when ~/.claude.json is missing", () => {
       // tmpHome is empty
-      const config = loadConfig();
+      const config = loadConfig({ cwd });
       expect(config.customMetadata).not.toHaveProperty("anthropic_user_id");
       expect(config.customMetadata).toMatchObject({ local_username: expect.any(String) });
     });
@@ -245,7 +253,7 @@ describe("loadConfig", () => {
 
   describe("local username", () => {
     it("includes local_username in customMetadata", () => {
-      const config = loadConfig();
+      const config = loadConfig({ cwd });
       const username = config.customMetadata?.local_username;
       expect(typeof username).toBe("string");
       expect((username as string).length).toBeGreaterThan(0);
@@ -253,8 +261,34 @@ describe("loadConfig", () => {
 
     it("user-supplied CC_LANGSMITH_METADATA overrides local_username on conflict", () => {
       process.env.CC_LANGSMITH_METADATA = JSON.stringify({ local_username: "custom-name" });
-      const config = loadConfig();
+      const config = loadConfig({ cwd });
       expect(config.customMetadata?.local_username).toBe("custom-name");
+    });
+  });
+
+  it.each([
+    ["github", "https://github.com/langchain-ai/example.git"],
+    ["gitlab", "https://gitlab.com/langchain-ai/example.git"],
+    ["bitbucket", "https://bitbucket.org/langchain-ai/example.git"],
+    ["devAzure", "https://dev.azure.com/langchain-ai/example.git"],
+  ])("inserts repository name into customMetadata for %s", (provider, url) => {
+    vi.mocked(execSync).mockImplementation(() => {
+      return [["origin", url + " (fetch)"].join("\t"), ["origin", url + " (push)"].join("\t")].join(
+        "\n",
+      );
+    });
+
+    process.env.CC_LANGSMITH_METADATA = JSON.stringify({
+      pr_url: "https://github.com/org/repo/pull/42",
+      pr_author: "octocat",
+    });
+
+    const config = loadConfig({ cwd: __dirname });
+    expect(config.customMetadata).toMatchObject({
+      pr_url: "https://github.com/org/repo/pull/42",
+      pr_author: "octocat",
+      repository_name: "langchain-ai/example",
+      repository_provider: provider,
     });
   });
 });
