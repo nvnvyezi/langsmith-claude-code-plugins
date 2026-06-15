@@ -15,7 +15,9 @@ import type {
   ContentBlock,
   ToolUseBlock,
   Usage,
+  SkillCall,
 } from "./types.js";
+import { SKILL_CONTENT_MAX_LENGTH } from "./constants.js";
 
 // ─── Low-level parsing ─────────────────────────────────────────────────────
 
@@ -185,6 +187,37 @@ export function isAssistantMessage(msg: TranscriptMessage): msg is AssistantMess
   return msg.type === "assistant";
 }
 
+/** Check if a message is a meta/instruction injection message (isMeta: true).
+ *  These carry Skill instructions and should NOT be treated as human messages. */
+export function isMetaMessage(msg: TranscriptMessage): boolean {
+  return (msg as unknown as Record<string, unknown>).isMeta === true;
+}
+
+/** Extract Skill name from a slash command user message.
+ *  Matches: <command-name>/skill-name</command-name>
+ *  Returns the skill name (without slash) or undefined. */
+export function extractSlashCommandSkillName(content: string): string | undefined {
+  const match = content.match(/<command-name>\/([^<]+)<\/command-name>/);
+  return match?.[1];
+}
+
+/** Extract skill instruction content from an isMeta message.
+ *  Returns the text content, truncated to SKILL_CONTENT_MAX_LENGTH chars. */
+export function extractSkillContent(msg: TranscriptMessage): string | undefined {
+  const content = (msg as { message?: { content?: unknown } }).message?.content;
+  if (typeof content === "string") {
+    return content.slice(0, SKILL_CONTENT_MAX_LENGTH);
+  }
+  if (Array.isArray(content)) {
+    const textParts = content
+      .filter((b: Record<string, unknown>) => b.type === "text" && typeof b.text === "string")
+      .map((b: Record<string, unknown>) => b.text as string);
+    const full = textParts.join("\n");
+    return full.slice(0, SKILL_CONTENT_MAX_LENGTH);
+  }
+  return undefined;
+}
+
 /** Strip the date suffix from a model name (e.g. "claude-sonnet-4-5-20250929" → "claude-sonnet-4-5"). */
 export function stripModelDateSuffix(model: string): string {
   return model.replace(/-\d{8}$/, "");
@@ -297,6 +330,11 @@ export function groupIntoTurns(messages: TranscriptMessage[]): Turn[] {
   let toolResults: ToolResultMessage[] = [];
   let hasStopReasonEndTurn = false;
 
+  // Skill tracking
+  let pendingSlashSkillName: string | undefined;
+  let pendingSkillContent: Record<string, string> = {}; // sourceToolUseID -> skill content
+  let skillCalls: SkillCall[] = [];
+
   function finalizeTurn(forceIncomplete = false): void {
     if (!currentUser) return;
     if (assistantChunks.size === 0) return;
@@ -328,6 +366,7 @@ export function groupIntoTurns(messages: TranscriptMessage[]): Turn[] {
           tool_use: tu,
           result: result ? { content: result.content, timestamp: result.timestamp } : undefined,
           agentId: result?.agentId,
+          skillContent: pendingSkillContent[tu.id],
         };
       });
 
@@ -345,12 +384,44 @@ export function groupIntoTurns(messages: TranscriptMessage[]): Turn[] {
       userContent: currentUser.message.content as string | Array<Record<string, unknown>>,
       userTimestamp: currentUser.timestamp,
       llmCalls,
+      skillCalls,
       isComplete,
     });
   }
 
   for (const msg of messages) {
+    // Handle meta/instruction injection messages (Skill content).
+    // These must be processed BEFORE isHumanMessage so they don't start new turns.
+    if (isMetaMessage(msg)) {
+      const skillContent = extractSkillContent(msg);
+      const sourceToolUseId = (msg as unknown as Record<string, unknown>).sourceToolUseID as string | undefined;
+
+      if (sourceToolUseId) {
+        // Agent-initiated Skill: link content to the existing ToolCall via sourceToolUseID
+        if (skillContent) {
+          pendingSkillContent[sourceToolUseId] = skillContent;
+        }
+      } else if (pendingSlashSkillName) {
+        // Slash command Skill: pair with the preceding <command-message>
+        skillCalls.push({
+          name: pendingSlashSkillName,
+          content: skillContent ?? "",
+          timestamp: (msg as { timestamp?: string }).timestamp ?? new Date().toISOString(),
+        });
+        pendingSlashSkillName = undefined;
+      }
+      // Don't process as human message — isMeta messages are instruction injections, not user input
+      continue;
+    }
+
     if (isHumanMessage(msg)) {
+      // Check if this is a slash command Skill invocation
+      const contentStr = typeof msg.message.content === "string" ? msg.message.content : "";
+      const slashSkillName = extractSlashCommandSkillName(contentStr);
+      if (slashSkillName) {
+        pendingSlashSkillName = slashSkillName;
+      }
+
       // Determine if this is a new turn
       // If promptId is available, use it to detect turn boundaries
       // Otherwise, any new human message starts a new turn
@@ -368,6 +439,8 @@ export function groupIntoTurns(messages: TranscriptMessage[]): Turn[] {
         assistantOrder = [];
         toolResults = [];
         hasStopReasonEndTurn = false;
+        pendingSkillContent = {};
+        skillCalls = [];
       }
     } else if (isToolResult(msg)) {
       toolResults.push(msg);

@@ -134,6 +134,16 @@ async function main(): Promise<void> {
           : {
               // Record tool_use_id so traceTurn skips it (avoids double-tracing).
               traced_tool_use_ids: [...(freshSession.traced_tool_use_ids ?? []), input.tool_use_id],
+              // For Skill tools, also record run info so the Stop hook can enrich
+              // the run with actual skill content from the transcript.
+              ...(input.tool_name === "Skill"
+                ? {
+                    skill_tool_runs: {
+                      ...freshSession.skill_tool_runs,
+                      [input.tool_use_id]: { run_id: toolRunId, dotted_order: toolDottedOrder },
+                    },
+                  }
+                : {}),
             }),
       },
     };

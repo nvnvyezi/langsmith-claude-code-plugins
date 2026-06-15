@@ -8,6 +8,9 @@ import {
   isHumanMessage,
   isToolResult,
   isAssistantMessage,
+  isMetaMessage,
+  extractSlashCommandSkillName,
+  extractSkillContent,
   stripModelDateSuffix,
   groupIntoTurns,
 } from "./transcript.js";
@@ -520,5 +523,200 @@ describe("groupIntoTurns", () => {
     ];
     const turns = groupIntoTurns(messages);
     expect(turns[0].userTimestamp).toBe("2025-06-15T12:30:00.500Z");
+  });
+
+  // ─── Skill tracing tests ──────────────────────────────────────────────────
+
+  it("detects slash command Skill invocation", () => {
+    const messages: TranscriptMessage[] = [
+      {
+        type: "user",
+        message: {
+          role: "user",
+          content: "<command-message>mc-strict-literal</command-message>\n<command-name>/mc-strict-literal</command-name>",
+        },
+        timestamp: "2025-01-01T00:00:00Z",
+      } as unknown as TranscriptMessage,
+      {
+        type: "user",
+        message: {
+          role: "user",
+          content: [{ type: "text", text: "You must follow these instructions strictly..." }],
+        },
+        timestamp: "2025-01-01T00:00:00.5Z",
+        isMeta: true,
+      } as unknown as TranscriptMessage,
+      makeAssistant("msg_1", "Following strict literal mode..."),
+    ];
+    const turns = groupIntoTurns(messages);
+    expect(turns).toHaveLength(1);
+    expect(turns[0].skillCalls).toHaveLength(1);
+    expect(turns[0].skillCalls[0].name).toBe("mc-strict-literal");
+    expect(turns[0].skillCalls[0].content).toBe("You must follow these instructions strictly...");
+    expect(turns[0].skillCalls[0].timestamp).toBe("2025-01-01T00:00:00.5Z");
+  });
+
+  it("enriches agent-initiated Skill tool call with isMeta content", () => {
+    const messages: TranscriptMessage[] = [
+      makeUser("Use a skill"),
+      makeAssistant("msg_1", "I'll use that skill.", {
+        toolUses: [{ id: "tool_skill_1", name: "Skill", input: { skill: "mc-spec-explore", args: "explore this" } }],
+      }),
+      makeToolResult("tool_skill_1", "Launching skill: mc-spec-explore"),
+      {
+        type: "user",
+        message: {
+          role: "user",
+          content: [{ type: "text", text: "This skill helps you explore specifications..." }],
+        },
+        timestamp: "2025-01-01T00:00:02.5Z",
+        isMeta: true,
+        sourceToolUseID: "tool_skill_1",
+      } as unknown as TranscriptMessage,
+      makeAssistant("msg_2", "Now I'll explore the spec..."),
+    ];
+    const turns = groupIntoTurns(messages);
+    expect(turns).toHaveLength(1);
+    expect(turns[0].llmCalls[0].toolCalls).toHaveLength(1);
+    expect(turns[0].llmCalls[0].toolCalls[0].skillContent).toBe("This skill helps you explore specifications...");
+    // No slash-command skill (it's agent-initiated)
+    expect(turns[0].skillCalls).toHaveLength(0);
+  });
+
+  it("does not treat isMeta messages as new turn boundaries", () => {
+    const messages: TranscriptMessage[] = [
+      makeUser("Hello"),
+      makeAssistant("msg_1", "Hi"),
+      {
+        type: "user",
+        message: { role: "user", content: [{ type: "text", text: "Skill instructions" }] },
+        timestamp: "2025-01-01T00:00:02Z",
+        isMeta: true,
+      } as unknown as TranscriptMessage,
+    ];
+    const turns = groupIntoTurns(messages);
+    // Should NOT split into 2 turns — the isMeta message is skipped
+    expect(turns).toHaveLength(1);
+  });
+
+  it("truncates skill content to 2000 characters", () => {
+    const longContent = "x".repeat(3000);
+    const messages: TranscriptMessage[] = [
+      {
+        type: "user",
+        message: {
+          role: "user",
+          content: "<command-message>long-skill</command-message>\n<command-name>/long-skill</command-name>",
+        },
+        timestamp: "2025-01-01T00:00:00Z",
+      } as unknown as TranscriptMessage,
+      {
+        type: "user",
+        message: {
+          role: "user",
+          content: [{ type: "text", text: longContent }],
+        },
+        timestamp: "2025-01-01T00:00:00.5Z",
+        isMeta: true,
+      } as unknown as TranscriptMessage,
+      makeAssistant("msg_1", "Following long skill..."),
+    ];
+    const turns = groupIntoTurns(messages);
+    expect(turns[0].skillCalls).toHaveLength(1);
+    expect(turns[0].skillCalls[0].content.length).toBe(2000);
+  });
+
+  it("works normally when no Skill invocations are present", () => {
+    const messages: TranscriptMessage[] = [
+      makeUser("Hello"),
+      makeAssistant("msg_1", "Hi there!"),
+    ];
+    const turns = groupIntoTurns(messages);
+    expect(turns).toHaveLength(1);
+    expect(turns[0].skillCalls).toHaveLength(0);
+    expect(turns[0].llmCalls[0].toolCalls).toHaveLength(0);
+  });
+});
+
+// ─── Skill helper functions ──────────────────────────────────────────────────
+
+describe("isMetaMessage", () => {
+  it("returns true for messages with isMeta: true", () => {
+    const msg = {
+      type: "user",
+      message: { role: "user", content: [{ type: "text", text: "skill content" }] },
+      timestamp: "2025-01-01T00:00:00Z",
+      isMeta: true,
+    } as unknown as TranscriptMessage;
+    expect(isMetaMessage(msg)).toBe(true);
+  });
+
+  it("returns false for regular user messages", () => {
+    expect(isMetaMessage(makeUser("Hello"))).toBe(false);
+  });
+
+  it("returns false for assistant messages", () => {
+    expect(isMetaMessage(makeAssistant("msg_1", "Hi"))).toBe(false);
+  });
+});
+
+describe("extractSlashCommandSkillName", () => {
+  it("extracts skill name from command message", () => {
+    expect(extractSlashCommandSkillName("<command-message>mc-strict-literal</command-message>\n<command-name>/mc-strict-literal</command-name>")).toBe("mc-strict-literal");
+  });
+
+  it("extracts skill name with namespace", () => {
+    expect(extractSlashCommandSkillName("<command-message>mc:spec</command-message>\n<command-name>/mc:spec</command-name>")).toBe("mc:spec");
+  });
+
+  it("returns undefined for non-skill messages", () => {
+    expect(extractSlashCommandSkillName("Just a regular message")).toBeUndefined();
+  });
+
+  it("extracts skill name with args", () => {
+    expect(extractSlashCommandSkillName("<command-message>find-skills</command-message>\n<command-name>/find-skills</command-name>\n<command-args>some query</command-args>")).toBe("find-skills");
+  });
+});
+
+describe("extractSkillContent", () => {
+  it("extracts content from array text blocks", () => {
+    const msg = {
+      type: "user",
+      message: { role: "user", content: [{ type: "text", text: "Skill instructions here" }] },
+      timestamp: "2025-01-01T00:00:00Z",
+      isMeta: true,
+    } as unknown as TranscriptMessage;
+    expect(extractSkillContent(msg)).toBe("Skill instructions here");
+  });
+
+  it("extracts content from string content", () => {
+    const msg = {
+      type: "user",
+      message: { role: "user", content: "String skill content" },
+      timestamp: "2025-01-01T00:00:00Z",
+      isMeta: true,
+    } as unknown as TranscriptMessage;
+    expect(extractSkillContent(msg)).toBe("String skill content");
+  });
+
+  it("truncates long content to 2000 chars", () => {
+    const longText = "a".repeat(5000);
+    const msg = {
+      type: "user",
+      message: { role: "user", content: [{ type: "text", text: longText }] },
+      timestamp: "2025-01-01T00:00:00Z",
+      isMeta: true,
+    } as unknown as TranscriptMessage;
+    expect(extractSkillContent(msg)?.length).toBe(2000);
+  });
+
+  it("returns undefined for non-text content", () => {
+    const msg = {
+      type: "user",
+      message: { role: "user", content: 42 },
+      timestamp: "2025-01-01T00:00:00Z",
+      isMeta: true,
+    } as unknown as TranscriptMessage;
+    expect(extractSkillContent(msg)).toBeUndefined();
   });
 });

@@ -1140,4 +1140,98 @@ describe("traceTurn", () => {
     expect(llmMetadata.ls_provider).toBe("anthropic");
     expect(llmMetadata.ls_model_name).toBe("claude-sonnet-4-5");
   });
+
+  // ─── Skill tracing tests ──────────────────────────────────────────────────
+
+  it("creates a Skill tool run for slash command skills", async () => {
+    const turn: Turn = {
+      userContent: "<command-message>mc-strict-literal</command-message>\n<command-name>/mc-strict-literal</command-name>",
+      userTimestamp: "2025-01-01T00:00:00Z",
+      llmCalls: [
+        {
+          content: [{ type: "text", text: "Following instructions..." }],
+          model: "claude-sonnet-4-5",
+          usage: { input_tokens: 10, output_tokens: 5 },
+          startTime: "2025-01-01T00:00:01Z",
+          endTime: "2025-01-01T00:00:02Z",
+          toolCalls: [],
+        },
+      ],
+      skillCalls: [
+        {
+          name: "mc-strict-literal",
+          content: "You must follow these instructions strictly...",
+          timestamp: "2025-01-01T00:00:00.5Z",
+        },
+      ],
+      isComplete: true,
+    };
+
+    await traceTurn({
+      turn,
+      sessionId: "session-123",
+      turnNum: 1,
+      project: "test-project",
+    });
+
+    // Should create: turn + assistant + skill = 3 postRun calls
+    const postRunInstances = allRunTreeInstances.filter((i) => i.ops.includes("postRun"));
+    expect(postRunInstances.length).toBeGreaterThanOrEqual(3);
+
+    const skillInstance = postRunInstances.find(
+      (i) => i.params.run_type === "tool" && (i.params.name as string).startsWith("Skill"),
+    );
+    expect(skillInstance).toBeDefined();
+    expect(skillInstance!.params.name).toBe("Skill: mc-strict-literal");
+    expect(skillInstance!.params.outputs).toEqual({ output: "You must follow these instructions strictly..." });
+    const metadata = (skillInstance!.params.extra as Record<string, unknown>)?.metadata as Record<string, unknown>;
+    expect(metadata.skill_name).toBe("mc-strict-literal");
+    expect(metadata.skill_invocation_type).toBe("slash_command");
+  });
+
+  it("enriches Skill tool call with skillContent", async () => {
+    const turn: Turn = {
+      userContent: "Use skill",
+      userTimestamp: "2025-01-01T00:00:00Z",
+      llmCalls: [
+        {
+          content: [
+            { type: "text", text: "Using skill." },
+            { type: "tool_use", id: "tool_1", name: "Skill", input: { skill: "mc-spec-explore", args: "..." } },
+          ],
+          model: "claude-sonnet-4-5",
+          usage: { input_tokens: 10, output_tokens: 15 },
+          startTime: "2025-01-01T00:00:01Z",
+          endTime: "2025-01-01T00:00:02Z",
+          toolCalls: [
+            {
+              tool_use: { type: "tool_use", id: "tool_1", name: "Skill", input: { skill: "mc-spec-explore", args: "..." } },
+              result: { content: "Launching skill: mc-spec-explore", timestamp: "2025-01-01T00:00:03Z" },
+              skillContent: "This skill helps you explore specifications...",
+            },
+          ],
+        },
+      ],
+      skillCalls: [],
+      isComplete: true,
+    };
+
+    await traceTurn({
+      turn,
+      sessionId: "session-123",
+      turnNum: 1,
+      project: "test-project",
+    });
+
+    const postRunInstances = allRunTreeInstances.filter((i) => i.ops.includes("postRun"));
+    const toolInstance = postRunInstances.find(
+      (i) => i.params.run_type === "tool",
+    );
+    expect(toolInstance).toBeDefined();
+    expect(toolInstance!.params.name).toBe("Skill: mc-spec-explore");
+    expect(toolInstance!.params.outputs).toEqual({ output: "This skill helps you explore specifications..." });
+    const metadata = (toolInstance!.params.extra as Record<string, unknown>)?.metadata as Record<string, unknown>;
+    expect(metadata.skill_name).toBe("mc-spec-explore");
+    expect(metadata.skill_invocation_type).toBe("agent_initiated");
+  });
 });

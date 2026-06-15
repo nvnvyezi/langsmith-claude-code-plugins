@@ -127,6 +127,20 @@ export interface ToolCall {
   };
   /** If this was a Task tool, the agent ID for subagent tracing. */
   agentId?: string;
+  /** For Skill tool calls: enriched skill instruction content (truncated to 2000 chars). */
+  skillContent?: string;
+}
+
+/** A Skill invocation (slash command or agent-initiated), with its instruction content. */
+export interface SkillCall {
+  /** Skill name (without leading slash), e.g. "mc-strict-literal". */
+  name: string;
+  /** Arguments passed to the skill (for agent-initiated skills). */
+  args?: string;
+  /** The skill's instruction content, truncated to SKILL_CONTENT_MAX_LENGTH chars. */
+  content: string;
+  /** Timestamp of the skill invocation. */
+  timestamp: string;
 }
 
 /** A single LLM response, possibly with tool calls. */
@@ -152,6 +166,8 @@ export interface Turn {
   userContent: string | Array<Record<string, unknown>>;
   userTimestamp: string;
   llmCalls: LLMCall[];
+  /** Skill invocations detected in this turn (slash command or agent-initiated). */
+  skillCalls: SkillCall[];
   /** Whether the turn is complete (has stop_reason: "end_turn"). If false, the assistant is still responding. */
   isComplete: boolean;
 }
@@ -192,6 +208,9 @@ export interface SessionState {
   >;
   /** tool_use_ids of regular tools already traced by PostToolUse (prevents double-tracing in traceTurn) */
   traced_tool_use_ids?: string[];
+  /** Maps tool_use_id -> run info for Skill tools already traced by PostToolUse,
+   *  so the Stop hook can enrich them with actual skill content from the transcript. */
+  skill_tool_runs?: Record<string, { run_id: string; dotted_order: string }>;
   /** Wall-clock time (ms) when the last PreCompact hook fired */
   compaction_start_time?: number;
   /** Pending subagent traces to process (set by SubagentStop, processed by Stop) */

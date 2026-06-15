@@ -21,3 +21,45 @@ Thumbs.db
 # Project specific
 cc_transcript.jsonl
 *.log
+
+# >>> motor-code managed; do not edit >>>
+.traecli
+.coco/commands/mc*
+**/.traecli
+**/.coco/commands/mc*
+.motor-code/local.json
+**/.motor-code/local.json
+.motor-code/plugin-resource-state.json
+**/.motor-code/plugin-resource-state.json
+.motor-code/plugins/
+**/.motor-code/plugins/
+.motor-code/resources/
+**/.motor-code/resources/
+.motor-code/temp/
+**/.motor-code/temp/
+.motor-code/hooks/
+**/.motor-code/hooks/
+.motor-code/git-hooks/
+**/.motor-code/git-hooks/
+.motor-code/log/
+**/.motor-code/log/
+.motor-code/dev-tools-state.json
+**/.motor-code/dev-tools-state.json
+.motor-code/backups/
+**/.motor-code/backups/
+.motor-code/last-init-failure.json
+**/.motor-code/last-init-failure.json
+.motor-code/init-config.yaml
+**/.motor-code/init-config.yaml
+docs/rules/
+**/docs/rules/
+!.motor-code/local/
+!.motor-code/local/**
+!**/.motor-code/local/
+!**/.motor-code/local/**
+# <<< motor-code <<<
+.motor-code/
+.claude/
+.bytedev
+.agents
+.mcp.json

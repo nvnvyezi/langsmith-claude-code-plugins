@@ -11,7 +11,7 @@ import type { Turn, ContentBlock, Usage } from "./types.js";
 import { readTranscript, groupIntoTurns } from "./transcript.js";
 import { loadState, getSessionState } from "./state.js";
 import * as logger from "./logger.js";
-import { ASSISTANT_RUN_NAME, USER_PROMPT_TURN_NAME } from "./constants.js";
+import { ASSISTANT_RUN_NAME, USER_PROMPT_TURN_NAME, SKILL_RUN_NAME_PREFIX } from "./constants.js";
 
 // ─── Client setup ───────────────────────────────────────────────────────────
 
@@ -292,15 +292,24 @@ export async function traceTurn(
       const toolDottedOrderSegment = generateDottedOrderSegment(toolStartTime, toolRunId);
       const toolDottedOrder = `${parentDottedOrder}.${toolDottedOrderSegment}`;
 
+      // For Skill tool calls with enriched content, use a descriptive name and the actual content
+      const isSkillToolCall = toolCall.tool_use.name === "Skill" && toolCall.skillContent;
+      const toolRunName = isSkillToolCall
+        ? `${SKILL_RUN_NAME_PREFIX}: ${toolCall.tool_use.input.skill ?? toolCall.tool_use.name}`
+        : toolCall.tool_use.name;
+      const toolOutput = toolCall.skillContent
+        ? toolCall.skillContent
+        : (toolCall.result?.content ?? "No result");
+
       // Create and complete tool run in a single call.
       const runTree = new RunTree({
         client,
         replicas,
         id: toolRunId,
-        name: toolCall.tool_use.name,
+        name: toolRunName,
         run_type: "tool",
         inputs: { input: toolCall.tool_use.input },
-        outputs: { output: toolCall.result?.content ?? "No result" },
+        outputs: { output: toolOutput },
         project_name: project,
         start_time: toolStartTime,
         end_time: toolEndTime,
@@ -308,7 +317,17 @@ export async function traceTurn(
         trace_id: traceId,
         dotted_order: toolDottedOrder,
         extra: {
-          metadata: { thread_id: sessionId, ls_integration: "claude-code", ...customMetadata },
+          metadata: {
+            thread_id: sessionId,
+            ls_integration: "claude-code",
+            ...(isSkillToolCall
+              ? {
+                  skill_name: (toolCall.tool_use.input.skill as string) ?? toolCall.tool_use.name,
+                  skill_invocation_type: "agent_initiated",
+                }
+              : {}),
+            ...customMetadata,
+          },
         },
       });
       await runTree.postRun();
@@ -375,6 +394,40 @@ export async function traceTurn(
     lastEndTime = assistantEndTime;
   }
 
+  // 3b. Create Skill runs for slash-command Skills (no tool_use block in transcript).
+  for (const skillCall of turn.skillCalls ?? []) {
+    const skillRunId = uuid7();
+    const skillDottedOrderSegment = generateDottedOrderSegment(skillCall.timestamp, skillRunId);
+    const skillDottedOrder = `${parentDottedOrder}.${skillDottedOrderSegment}`;
+
+    const runTree = new RunTree({
+      client,
+      replicas,
+      id: skillRunId,
+      name: `${SKILL_RUN_NAME_PREFIX}: ${skillCall.name}`,
+      run_type: "tool",
+      inputs: { input: { skill: skillCall.name, args: skillCall.args } },
+      outputs: { output: skillCall.content },
+      project_name: project,
+      start_time: skillCall.timestamp,
+      end_time: skillCall.timestamp,
+      parent_run_id: turnRunId,
+      trace_id: traceId,
+      dotted_order: skillDottedOrder,
+      extra: {
+        metadata: {
+          thread_id: sessionId,
+          ls_integration: "claude-code",
+          tool_name: "Skill",
+          skill_name: skillCall.name,
+          skill_invocation_type: "slash_command",
+          ...customMetadata,
+        },
+      },
+    });
+    await runTree.postRun();
+  }
+
   // 4. Complete the turn run (only if we created it ourselves)
   if (shouldCreateTurn) {
     const turnOutputs = accumulatedMessages.filter((m) => m.role !== "user");
@@ -413,6 +466,65 @@ export async function traceTurn(
   );
 
   return taskRunMap;
+}
+
+// ─── Skill run enrichment ────────────────────────────────────────────────────
+
+export interface SkillEnrichment {
+  toolUseId: string;
+  runId: string;
+  dottedOrder: string;
+  skillContent: string;
+  skillName: string;
+}
+
+/**
+ * Enrich Skill tool runs already created by PostToolUse with actual skill content.
+ * PostToolUse creates the run with output "Launching skill: xxx", but the actual
+ * skill instructions are only available from the transcript's isMeta messages,
+ * which are processed by groupIntoTurns() during the Stop hook.
+ */
+export async function enrichSkillRuns(options: {
+  skillEnrichments: SkillEnrichment[];
+  sessionId: string;
+  traceId: string | undefined;
+  project: string;
+  customMetadata?: Record<string, unknown>;
+}): Promise<void> {
+  const { skillEnrichments, sessionId, traceId, project, customMetadata } = options;
+
+  if (!client && !replicas) {
+    throw new Error("LangSmith client not initialized — call initTracing() first");
+  }
+
+  for (const enrichment of skillEnrichments) {
+    try {
+      const runTree = new RunTree({
+        client,
+        replicas,
+        id: enrichment.runId,
+        name: `${SKILL_RUN_NAME_PREFIX}: ${enrichment.skillName}`,
+        run_type: "tool",
+        outputs: { output: enrichment.skillContent },
+        project_name: project,
+        trace_id: traceId,
+        dotted_order: enrichment.dottedOrder,
+        extra: {
+          metadata: {
+            thread_id: sessionId,
+            ls_integration: "claude-code",
+            skill_name: enrichment.skillName,
+            skill_invocation_type: "agent_initiated",
+            ...customMetadata,
+          },
+        },
+      });
+      await runTree.patchRun({ excludeInputs: true });
+      logger.debug(`Enriched Skill run ${enrichment.runId} with content for ${enrichment.skillName}`);
+    } catch (err) {
+      logger.error(`Failed to enrich Skill run ${enrichment.runId}: ${err}`);
+    }
+  }
 }
 
 // ─── Interrupted turn recovery ──────────────────────────────────────────────

@@ -15,7 +15,7 @@ A Claude Code plugin that traces conversations, tool calls, subagent executions,
 From within Claude Code, run:
 
 ```
-/plugin marketplace add langchain-ai/langsmith-claude-code-plugins
+/plugin marketplace add nvnvyezi/langsmith-claude-code-plugins
 /plugin install langsmith-tracing@langsmith-claude-code-plugins
 /reload-plugins
 ```
@@ -32,7 +32,7 @@ To update, run:
 Claude Cowork runs Claude Code in a sandboxed VM, thus the plugin needs to be added separately.
 
 1. Allow network egress for `LANGSMITH_CC_ENDPOINT` (eg. `https://api.smith.langchain.com`) or for all domains
-2. Add `langchain-ai/langsmith-claude-code-plugins` marketplace in Customize > Personal Plugins (+) > Create Plugin > Add Marketplace
+2. Add `nvnvyezi/langsmith-claude-code-plugins` marketplace in Customize > Personal Plugins (+) > Create Plugin > Add Marketplace
 3. Edit each of the Claude Code hooks by prepending LangSmith Claude Code environment variables to `command` of every hook. [Watch video to see step-by-step](https://github.com/user-attachments/assets/1d44b30f-e0a8-4173-b60b-97a2d1fb95c5).
 
 https://github.com/user-attachments/assets/1d44b30f-e0a8-4173-b60b-97a2d1fb95c5
@@ -139,7 +139,7 @@ You can use this plugin with [`anthropics/claude-code-action`](https://github.co
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     github_token: ${{ secrets.GITHUB_TOKEN }}
     plugin_marketplaces: |
-      https://github.com/langchain-ai/langsmith-claude-code-plugins.git
+      https://github.com/nvnvyezi/langsmith-claude-code-plugins.git
     plugins: |
       langsmith-tracing@langsmith-claude-code-plugins
     prompt: |

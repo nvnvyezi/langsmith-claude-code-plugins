@@ -16,7 +16,7 @@ import {
   updateSessionState,
   pruneOldSessions,
 } from "../state.js";
-import { initTracing, traceTurn, tracePendingSubagents, flushPendingTraces } from "../langsmith.js";
+import { initTracing, traceTurn, tracePendingSubagents, enrichSkillRuns, flushPendingTraces } from "../langsmith.js";
 import { initHook, expandHome } from "../utils/hook-init.js";
 import { readStdin } from "../utils/stdin.js";
 import type { StopHookInput } from "../types.js";
@@ -198,6 +198,37 @@ async function main(): Promise<void> {
   const freshState = loadState(config.stateFilePath);
   const freshSession = getSessionState(freshState, input.session_id);
 
+  // Enrich Skill tool runs already traced by PostToolUse with actual skill content.
+  // PostToolUse creates the run with output "Launching skill: xxx", but the actual
+  // skill instructions are only available from the transcript's isMeta messages.
+  const skillEnrichments = [];
+  for (const turn of turns) {
+    for (const llmCall of turn.llmCalls) {
+      for (const tc of llmCall.toolCalls) {
+        if (tc.skillContent && freshSession.skill_tool_runs?.[tc.tool_use.id]) {
+          const runInfo = freshSession.skill_tool_runs[tc.tool_use.id];
+          skillEnrichments.push({
+            toolUseId: tc.tool_use.id,
+            runId: runInfo.run_id,
+            dottedOrder: runInfo.dotted_order,
+            skillContent: tc.skillContent,
+            skillName: (tc.tool_use.input.skill as string) ?? tc.tool_use.name,
+          });
+        }
+      }
+    }
+  }
+  if (skillEnrichments.length > 0) {
+    debug(`Enriching ${skillEnrichments.length} Skill run(s) with actual content`);
+    await enrichSkillRuns({
+      skillEnrichments,
+      sessionId: input.session_id,
+      traceId: freshSession.current_trace_id,
+      project: config.project,
+      customMetadata: config.customMetadata,
+    });
+  }
+
   // Merge task_run_map entries written by PostToolUse with those from traceTurn
   const mergedTaskRunMap = { ...freshSession.task_run_map, ...allTaskRunMaps };
 
@@ -239,6 +270,7 @@ async function main(): Promise<void> {
     updatedState[input.session_id].current_turn_run_id = undefined;
     updatedState[input.session_id].pending_subagent_traces = [];
     updatedState[input.session_id].traced_tool_use_ids = [];
+    updatedState[input.session_id].skill_tool_runs = {};
     updatedState[input.session_id].tool_start_times = {};
     return pruneOldSessions(updatedState);
   });

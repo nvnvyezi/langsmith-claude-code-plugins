@@ -25,9 +25,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/.pnpm/eventemitter3@4.0.7/node_modules/eventemitter3/index.js
+// node_modules/eventemitter3/index.js
 var require_eventemitter3 = __commonJS({
-  "node_modules/.pnpm/eventemitter3@4.0.7/node_modules/eventemitter3/index.js"(exports, module) {
+  "node_modules/eventemitter3/index.js"(exports, module) {
     "use strict";
     var has = Object.prototype.hasOwnProperty;
     var prefix = "~";
@@ -187,9 +187,9 @@ var require_eventemitter3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/p-finally@1.0.0/node_modules/p-finally/index.js
+// node_modules/p-finally/index.js
 var require_p_finally = __commonJS({
-  "node_modules/.pnpm/p-finally@1.0.0/node_modules/p-finally/index.js"(exports, module) {
+  "node_modules/p-finally/index.js"(exports, module) {
     "use strict";
     module.exports = (promise, onFinally) => {
       onFinally = onFinally || (() => {
@@ -208,9 +208,9 @@ var require_p_finally = __commonJS({
   }
 });
 
-// node_modules/.pnpm/p-timeout@3.2.0/node_modules/p-timeout/index.js
+// node_modules/p-timeout/index.js
 var require_p_timeout = __commonJS({
-  "node_modules/.pnpm/p-timeout@3.2.0/node_modules/p-timeout/index.js"(exports, module) {
+  "node_modules/p-timeout/index.js"(exports, module) {
     "use strict";
     var pFinally = require_p_finally();
     var TimeoutError = class extends Error {
@@ -257,9 +257,9 @@ var require_p_timeout = __commonJS({
   }
 });
 
-// node_modules/.pnpm/p-queue@6.6.2/node_modules/p-queue/dist/lower-bound.js
+// node_modules/p-queue/dist/lower-bound.js
 var require_lower_bound = __commonJS({
-  "node_modules/.pnpm/p-queue@6.6.2/node_modules/p-queue/dist/lower-bound.js"(exports) {
+  "node_modules/p-queue/dist/lower-bound.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function lowerBound(array, value, comparator) {
@@ -281,9 +281,9 @@ var require_lower_bound = __commonJS({
   }
 });
 
-// node_modules/.pnpm/p-queue@6.6.2/node_modules/p-queue/dist/priority-queue.js
+// node_modules/p-queue/dist/priority-queue.js
 var require_priority_queue = __commonJS({
-  "node_modules/.pnpm/p-queue@6.6.2/node_modules/p-queue/dist/priority-queue.js"(exports) {
+  "node_modules/p-queue/dist/priority-queue.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var lower_bound_1 = require_lower_bound();
@@ -319,9 +319,9 @@ var require_priority_queue = __commonJS({
   }
 });
 
-// node_modules/.pnpm/p-queue@6.6.2/node_modules/p-queue/dist/index.js
+// node_modules/p-queue/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/.pnpm/p-queue@6.6.2/node_modules/p-queue/dist/index.js"(exports) {
+  "node_modules/p-queue/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var EventEmitter = require_eventemitter3();
@@ -590,43 +590,48 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/regex.js
+// node_modules/langsmith/dist/utils/uuid/src/regex.js
 var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/validate.js
+// node_modules/langsmith/dist/utils/uuid/src/validate.js
 function validate(uuid) {
   return typeof uuid === "string" && regex_default.test(uuid);
 }
 var validate_default = validate;
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/parse.js
+// node_modules/langsmith/dist/utils/uuid/src/parse.js
 function parse(uuid) {
   if (!validate_default(uuid)) {
     throw TypeError("Invalid UUID");
   }
   let v;
-  const arr2 = new Uint8Array(16);
-  arr2[0] = (v = parseInt(uuid.slice(0, 8), 16)) >>> 24;
-  arr2[1] = v >>> 16 & 255;
-  arr2[2] = v >>> 8 & 255;
-  arr2[3] = v & 255;
-  arr2[4] = (v = parseInt(uuid.slice(9, 13), 16)) >>> 8;
-  arr2[5] = v & 255;
-  arr2[6] = (v = parseInt(uuid.slice(14, 18), 16)) >>> 8;
-  arr2[7] = v & 255;
-  arr2[8] = (v = parseInt(uuid.slice(19, 23), 16)) >>> 8;
-  arr2[9] = v & 255;
-  arr2[10] = (v = parseInt(uuid.slice(24, 36), 16)) / 1099511627776 & 255;
-  arr2[11] = v / 4294967296 & 255;
-  arr2[12] = v >>> 24 & 255;
-  arr2[13] = v >>> 16 & 255;
-  arr2[14] = v >>> 8 & 255;
-  arr2[15] = v & 255;
-  return arr2;
+  return Uint8Array.of(
+    (v = parseInt(uuid.slice(0, 8), 16)) >>> 24,
+    v >>> 16 & 255,
+    v >>> 8 & 255,
+    v & 255,
+    // Parse ........-####-....-....-............
+    (v = parseInt(uuid.slice(9, 13), 16)) >>> 8,
+    v & 255,
+    // Parse ........-....-####-....-............
+    (v = parseInt(uuid.slice(14, 18), 16)) >>> 8,
+    v & 255,
+    // Parse ........-....-....-####-............
+    (v = parseInt(uuid.slice(19, 23), 16)) >>> 8,
+    v & 255,
+    // Parse ........-....-....-....-############
+    // (Use "/" to avoid 32-bit truncation when bit-shifting high-order bytes)
+    (v = parseInt(uuid.slice(24, 36), 16)) / 1099511627776 & 255,
+    v / 4294967296 & 255,
+    v >>> 24 & 255,
+    v >>> 16 & 255,
+    v >>> 8 & 255,
+    v & 255
+  );
 }
 var parse_default = parse;
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/stringify.js
+// node_modules/langsmith/dist/utils/uuid/src/stringify.js
 var byteToHex = [];
 for (let i = 0; i < 256; ++i) {
   byteToHex.push((i + 256).toString(16).slice(1));
@@ -635,82 +640,32 @@ function unsafeStringify(arr2, offset = 0) {
   return (byteToHex[arr2[offset + 0]] + byteToHex[arr2[offset + 1]] + byteToHex[arr2[offset + 2]] + byteToHex[arr2[offset + 3]] + "-" + byteToHex[arr2[offset + 4]] + byteToHex[arr2[offset + 5]] + "-" + byteToHex[arr2[offset + 6]] + byteToHex[arr2[offset + 7]] + "-" + byteToHex[arr2[offset + 8]] + byteToHex[arr2[offset + 9]] + "-" + byteToHex[arr2[offset + 10]] + byteToHex[arr2[offset + 11]] + byteToHex[arr2[offset + 12]] + byteToHex[arr2[offset + 13]] + byteToHex[arr2[offset + 14]] + byteToHex[arr2[offset + 15]]).toLowerCase();
 }
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/rng.js
-import crypto from "node:crypto";
-var rnds8Pool = new Uint8Array(256);
-var poolPtr = rnds8Pool.length;
+// node_modules/langsmith/dist/utils/uuid/src/rng.js
+var rnds8 = new Uint8Array(16);
 function rng() {
-  if (poolPtr > rnds8Pool.length - 16) {
-    crypto.randomFillSync(rnds8Pool);
-    poolPtr = 0;
-  }
-  return rnds8Pool.slice(poolPtr, poolPtr += 16);
+  return crypto.getRandomValues(rnds8);
 }
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/v35.js
-function stringToBytes(str) {
-  str = unescape(encodeURIComponent(str));
-  const bytes = [];
-  for (let i = 0; i < str.length; ++i) {
-    bytes.push(str.charCodeAt(i));
-  }
-  return bytes;
-}
-var DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
-var URL2 = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
-function v35(name, version, hashfunc) {
-  function generateUUID(value, namespace, buf, offset) {
-    var _namespace;
-    if (typeof value === "string") {
-      value = stringToBytes(value);
-    }
-    if (typeof namespace === "string") {
-      namespace = parse_default(namespace);
-    }
-    if (((_namespace = namespace) === null || _namespace === void 0 ? void 0 : _namespace.length) !== 16) {
-      throw TypeError("Namespace must be array-like (16 iterable integer values, 0-255)");
-    }
-    let bytes = new Uint8Array(16 + value.length);
-    bytes.set(namespace);
-    bytes.set(value, namespace.length);
-    bytes = hashfunc(bytes);
-    bytes[6] = bytes[6] & 15 | version;
-    bytes[8] = bytes[8] & 63 | 128;
-    if (buf) {
-      offset = offset || 0;
-      for (let i = 0; i < 16; ++i) {
-        buf[offset + i] = bytes[i];
-      }
-      return buf;
-    }
-    return unsafeStringify(bytes);
-  }
-  try {
-    generateUUID.name = name;
-  } catch (err) {
-  }
-  generateUUID.DNS = DNS;
-  generateUUID.URL = URL2;
-  return generateUUID;
-}
-
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/native.js
-import crypto2 from "node:crypto";
-var native_default = {
-  randomUUID: crypto2.randomUUID
-};
-
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/v4.js
+// node_modules/langsmith/dist/utils/uuid/src/v4.js
 function v4(options, buf, offset) {
-  if (native_default.randomUUID && !buf && !options) {
-    return native_default.randomUUID();
+  if (!buf && !options && crypto.randomUUID) {
+    return crypto.randomUUID();
   }
+  return _v4(options, buf, offset);
+}
+function _v4(options, buf, offset) {
   options = options || {};
-  const rnds = options.random || (options.rng || rng)();
+  const rnds = options.random ?? options.rng?.() ?? rng();
+  if (rnds.length < 16) {
+    throw new Error("Random bytes length must be >= 16");
+  }
   rnds[6] = rnds[6] & 15 | 64;
   rnds[8] = rnds[8] & 63 | 128;
   if (buf) {
     offset = offset || 0;
+    if (offset < 0 || offset + 16 > buf.length) {
+      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
+    }
     for (let i = 0; i < 16; ++i) {
       buf[offset + i] = rnds[i];
     }
@@ -720,90 +675,184 @@ function v4(options, buf, offset) {
 }
 var v4_default = v4;
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/sha1.js
-import crypto3 from "node:crypto";
-function sha1(bytes) {
-  if (Array.isArray(bytes)) {
-    bytes = Buffer.from(bytes);
-  } else if (typeof bytes === "string") {
-    bytes = Buffer.from(bytes, "utf8");
+// node_modules/langsmith/dist/utils/uuid/src/sha1.js
+function f(s, x, y, z) {
+  switch (s) {
+    case 0:
+      return x & y ^ ~x & z;
+    case 1:
+      return x ^ y ^ z;
+    case 2:
+      return x & y ^ x & z ^ y & z;
+    case 3:
+      return x ^ y ^ z;
   }
-  return crypto3.createHash("sha1").update(bytes).digest();
+}
+function ROTL(x, n2) {
+  return x << n2 | x >>> 32 - n2;
+}
+function sha1(bytes) {
+  const K = [1518500249, 1859775393, 2400959708, 3395469782];
+  const H = [1732584193, 4023233417, 2562383102, 271733878, 3285377520];
+  const newBytes = new Uint8Array(bytes.length + 1);
+  newBytes.set(bytes);
+  newBytes[bytes.length] = 128;
+  bytes = newBytes;
+  const l = bytes.length / 4 + 2;
+  const N = Math.ceil(l / 16);
+  const M = new Array(N);
+  for (let i = 0; i < N; ++i) {
+    const arr2 = new Uint32Array(16);
+    for (let j = 0; j < 16; ++j) {
+      arr2[j] = bytes[i * 64 + j * 4] << 24 | bytes[i * 64 + j * 4 + 1] << 16 | bytes[i * 64 + j * 4 + 2] << 8 | bytes[i * 64 + j * 4 + 3];
+    }
+    M[i] = arr2;
+  }
+  M[N - 1][14] = (bytes.length - 1) * 8 / 2 ** 32;
+  M[N - 1][14] = Math.floor(M[N - 1][14]);
+  M[N - 1][15] = (bytes.length - 1) * 8 & 4294967295;
+  for (let i = 0; i < N; ++i) {
+    const W = new Uint32Array(80);
+    for (let t = 0; t < 16; ++t) {
+      W[t] = M[i][t];
+    }
+    for (let t = 16; t < 80; ++t) {
+      W[t] = ROTL(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1);
+    }
+    let a = H[0];
+    let b = H[1];
+    let c = H[2];
+    let d = H[3];
+    let e = H[4];
+    for (let t = 0; t < 80; ++t) {
+      const s = Math.floor(t / 20);
+      const T = ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[t] >>> 0;
+      e = d;
+      d = c;
+      c = ROTL(b, 30) >>> 0;
+      b = a;
+      a = T;
+    }
+    H[0] = H[0] + a >>> 0;
+    H[1] = H[1] + b >>> 0;
+    H[2] = H[2] + c >>> 0;
+    H[3] = H[3] + d >>> 0;
+    H[4] = H[4] + e >>> 0;
+  }
+  return Uint8Array.of(H[0] >> 24, H[0] >> 16, H[0] >> 8, H[0], H[1] >> 24, H[1] >> 16, H[1] >> 8, H[1], H[2] >> 24, H[2] >> 16, H[2] >> 8, H[2], H[3] >> 24, H[3] >> 16, H[3] >> 8, H[3], H[4] >> 24, H[4] >> 16, H[4] >> 8, H[4]);
 }
 var sha1_default = sha1;
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/v5.js
-var v5 = v35("v5", 80, sha1_default);
+// node_modules/langsmith/dist/utils/uuid/src/v35.js
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str));
+  const bytes = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; ++i) {
+    bytes[i] = str.charCodeAt(i);
+  }
+  return bytes;
+}
+var DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+var URL2 = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
+function v35(version, hash, value, namespace, buf, offset) {
+  const valueBytes = typeof value === "string" ? stringToBytes(value) : value;
+  const namespaceBytes = typeof namespace === "string" ? parse_default(namespace) : namespace;
+  if (typeof namespace === "string") {
+    namespace = parse_default(namespace);
+  }
+  if (namespace?.length !== 16) {
+    throw TypeError("Namespace must be array-like (16 iterable integer values, 0-255)");
+  }
+  let bytes = new Uint8Array(16 + valueBytes.length);
+  bytes.set(namespaceBytes);
+  bytes.set(valueBytes, namespaceBytes.length);
+  bytes = hash(bytes);
+  bytes[6] = bytes[6] & 15 | version;
+  bytes[8] = bytes[8] & 63 | 128;
+  if (buf) {
+    offset ??= 0;
+    if (offset < 0 || offset + 16 > buf.length) {
+      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
+    }
+    for (let i = 0; i < 16; ++i) {
+      buf[offset + i] = bytes[i];
+    }
+    return buf;
+  }
+  return unsafeStringify(bytes);
+}
+
+// node_modules/langsmith/dist/utils/uuid/src/v5.js
+function v5(value, namespace, buf, offset) {
+  return v35(80, sha1_default, value, namespace, buf, offset);
+}
+v5.DNS = DNS;
+v5.URL = URL2;
 var v5_default = v5;
 
-// node_modules/.pnpm/uuid@10.0.0/node_modules/uuid/dist/esm-node/v7.js
-var _seqLow = null;
-var _seqHigh = null;
-var _msecs = 0;
+// node_modules/langsmith/dist/utils/uuid/src/v7.js
+var _state = {};
 function v7(options, buf, offset) {
-  options = options || {};
-  let i = buf && offset || 0;
-  const b = buf || new Uint8Array(16);
-  const rnds = options.random || (options.rng || rng)();
-  const msecs = options.msecs !== void 0 ? options.msecs : Date.now();
-  let seq = options.seq !== void 0 ? options.seq : null;
-  let seqHigh = _seqHigh;
-  let seqLow = _seqLow;
-  if (msecs > _msecs && options.msecs === void 0) {
-    _msecs = msecs;
-    if (seq !== null) {
-      seqHigh = null;
-      seqLow = null;
-    }
-  }
-  if (seq !== null) {
-    if (seq > 2147483647) {
-      seq = 2147483647;
-    }
-    seqHigh = seq >>> 19 & 4095;
-    seqLow = seq & 524287;
-  }
-  if (seqHigh === null || seqLow === null) {
-    seqHigh = rnds[6] & 127;
-    seqHigh = seqHigh << 8 | rnds[7];
-    seqLow = rnds[8] & 63;
-    seqLow = seqLow << 8 | rnds[9];
-    seqLow = seqLow << 5 | rnds[10] >>> 3;
-  }
-  if (msecs + 1e4 > _msecs && seq === null) {
-    if (++seqLow > 524287) {
-      seqLow = 0;
-      if (++seqHigh > 4095) {
-        seqHigh = 0;
-        _msecs++;
-      }
-    }
+  let bytes;
+  if (options) {
+    bytes = v7Bytes(options.random ?? options.rng?.() ?? rng(), options.msecs, options.seq, buf, offset);
   } else {
-    _msecs = msecs;
+    const now = Date.now();
+    const rnds = rng();
+    updateV7State(_state, now, rnds);
+    bytes = v7Bytes(rnds, _state.msecs, _state.seq, buf, offset);
   }
-  _seqHigh = seqHigh;
-  _seqLow = seqLow;
-  b[i++] = _msecs / 1099511627776 & 255;
-  b[i++] = _msecs / 4294967296 & 255;
-  b[i++] = _msecs / 16777216 & 255;
-  b[i++] = _msecs / 65536 & 255;
-  b[i++] = _msecs / 256 & 255;
-  b[i++] = _msecs & 255;
-  b[i++] = seqHigh >>> 4 & 15 | 112;
-  b[i++] = seqHigh & 255;
-  b[i++] = seqLow >>> 13 & 63 | 128;
-  b[i++] = seqLow >>> 5 & 255;
-  b[i++] = seqLow << 3 & 255 | rnds[10] & 7;
-  b[i++] = rnds[11];
-  b[i++] = rnds[12];
-  b[i++] = rnds[13];
-  b[i++] = rnds[14];
-  b[i++] = rnds[15];
-  return buf || unsafeStringify(b);
+  return buf ?? unsafeStringify(bytes);
+}
+function updateV7State(state, now, rnds) {
+  state.msecs ??= -Infinity;
+  state.seq ??= 0;
+  if (now > state.msecs) {
+    state.seq = rnds[6] << 23 | rnds[7] << 16 | rnds[8] << 8 | rnds[9];
+    state.msecs = now;
+  } else {
+    state.seq = state.seq + 1 | 0;
+    if (state.seq === 0) {
+      state.msecs++;
+    }
+  }
+  return state;
+}
+function v7Bytes(rnds, msecs, seq, buf, offset = 0) {
+  if (rnds.length < 16) {
+    throw new Error("Random bytes length must be >= 16");
+  }
+  if (!buf) {
+    buf = new Uint8Array(16);
+    offset = 0;
+  } else {
+    if (offset < 0 || offset + 16 > buf.length) {
+      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
+    }
+  }
+  msecs ??= Date.now();
+  seq ??= rnds[6] * 127 << 24 | rnds[7] << 16 | rnds[8] << 8 | rnds[9];
+  buf[offset++] = msecs / 1099511627776 & 255;
+  buf[offset++] = msecs / 4294967296 & 255;
+  buf[offset++] = msecs / 16777216 & 255;
+  buf[offset++] = msecs / 65536 & 255;
+  buf[offset++] = msecs / 256 & 255;
+  buf[offset++] = msecs & 255;
+  buf[offset++] = 112 | seq >>> 28 & 15;
+  buf[offset++] = seq >>> 20 & 255;
+  buf[offset++] = 128 | seq >>> 14 & 63;
+  buf[offset++] = seq >>> 6 & 255;
+  buf[offset++] = seq << 2 & 255 | rnds[10] & 3;
+  buf[offset++] = rnds[11];
+  buf[offset++] = rnds[12];
+  buf[offset++] = rnds[13];
+  buf[offset++] = rnds[14];
+  buf[offset++] = rnds[15];
+  return buf;
 }
 var v7_default = v7;
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/experimental/otel/constants.js
+// node_modules/langsmith/dist/experimental/otel/constants.js
 var GEN_AI_OPERATION_NAME = "gen_ai.operation.name";
 var GEN_AI_SYSTEM = "gen_ai.system";
 var GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
@@ -838,7 +887,7 @@ var LANGSMITH_TAGS = "langsmith.span.tags";
 var LANGSMITH_REQUEST_STREAMING = "langsmith.request.streaming";
 var LANGSMITH_REQUEST_HEADERS = "langsmith.request.headers";
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/env.js
+// node_modules/langsmith/dist/utils/env.js
 var globalEnv;
 var isBrowser = () => typeof window !== "undefined" && typeof window.document !== "undefined";
 var isWebWorker = () => typeof globalThis === "object" && globalThis.constructor && globalThis.constructor.name === "DedicatedWorkerGlobalScope";
@@ -921,7 +970,7 @@ function getLangSmithEnvironmentVariables() {
         }
       }
     }
-  } catch (e) {
+  } catch (_e) {
   }
   return envVars;
 }
@@ -931,7 +980,7 @@ function getEnvironmentVariable(name) {
       // eslint-disable-next-line no-process-env
       process.env?.[name]
     ) : void 0;
-  } catch (e) {
+  } catch (_e) {
     return void 0;
   }
 }
@@ -977,8 +1026,29 @@ function getShas() {
 function getOtelEnabled() {
   return getEnvironmentVariable("OTEL_ENABLED") === "true" || getLangSmithEnvironmentVariable("OTEL_ENABLED") === "true";
 }
+var _VALID_TRACING_MODES = /* @__PURE__ */ new Set(["langsmith", "otel"]);
+function resolveTracingMode(configValue) {
+  if (configValue !== void 0) {
+    return configValue;
+  }
+  const envMode = getLangSmithEnvironmentVariable("TRACING_MODE");
+  if (envMode !== void 0 && envMode !== "") {
+    const lower = envMode.toLowerCase();
+    if (!_VALID_TRACING_MODES.has(lower)) {
+      throw new Error(`Invalid LANGSMITH_TRACING_MODE=${JSON.stringify(envMode)}. Must be one of: ${[..._VALID_TRACING_MODES].sort().join(", ")}`);
+    }
+    if (getOtelEnabled()) {
+      console.warn("Both LANGSMITH_TRACING_MODE and the legacy OTEL_ENABLED / LANGSMITH_OTEL_ENABLED env vars are set. LANGSMITH_TRACING_MODE takes precedence.");
+    }
+    return lower;
+  }
+  if (getOtelEnabled()) {
+    return "otel";
+  }
+  return "langsmith";
+}
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/singletons/otel.js
+// node_modules/langsmith/dist/singletons/otel.js
 var MockTracer = class {
   constructor() {
     Object.defineProperty(this, "hasWarned", {
@@ -989,8 +1059,8 @@ var MockTracer = class {
     });
   }
   startActiveSpan(_name, ...args) {
-    if (!this.hasWarned && getOtelEnabled()) {
-      console.warn('You have enabled OTEL export via the `OTEL_ENABLED` or `LANGSMITH_OTEL_ENABLED` environment variable, but have not initialized the required OTEL instances. Please add:\n```\nimport { initializeOTEL } from "langsmith/experimental/otel/setup";\ninitializeOTEL();\n```\nat the beginning of your code.');
+    if (!this.hasWarned && resolveTracingMode() === "otel") {
+      console.warn('OTel tracing mode is active (via LANGSMITH_TRACING_MODE, OTEL_ENABLED, or LANGSMITH_OTEL_ENABLED), but the required OTEL instances have not been initialized. Please add:\n```\nimport { initializeOTEL } from "langsmith/experimental/otel/setup";\ninitializeOTEL();\n```\nat the beginning of your code.');
       this.hasWarned = true;
     }
     let fn;
@@ -1084,7 +1154,7 @@ function getDefaultOTLPTracerComponents() {
   return OTELProviderSingleton.getDefaultOTLPTracerComponents();
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/experimental/otel/translator.js
+// node_modules/langsmith/dist/experimental/otel/translator.js
 var WELL_KNOWN_OPERATION_NAMES = {
   llm: "chat",
   tool: "execute_tool",
@@ -1425,7 +1495,7 @@ var LangSmithToOTELTranslator = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/is-network-error/index.js
+// node_modules/langsmith/dist/utils/is-network-error/index.js
 var objectToString = Object.prototype.toString;
 var isError = (value) => objectToString.call(value) === "[object Error]";
 var errorMessages = /* @__PURE__ */ new Set([
@@ -1464,7 +1534,7 @@ function isNetworkError(error2) {
   return errorMessages.has(message);
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/p-retry/index.js
+// node_modules/langsmith/dist/utils/p-retry/index.js
 function validateRetries(retries) {
   if (typeof retries === "number") {
     if (retries < 0) {
@@ -1637,11 +1707,11 @@ async function pRetry(input, options = {}) {
   throw new Error("Retry attempts exhausted without throwing an error.");
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/p-queue.js
+// node_modules/langsmith/dist/utils/p-queue.js
 var import_p_queue = __toESM(require_dist(), 1);
 var PQueue = "default" in import_p_queue.default ? import_p_queue.default.default : import_p_queue.default;
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/async_caller.js
+// node_modules/langsmith/dist/utils/async_caller.js
 var STATUS_RETRYABLE = [
   408,
   // Request Timeout
@@ -1769,7 +1839,7 @@ var AsyncCaller = class {
   }
 };
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/messages.js
+// node_modules/langsmith/dist/utils/messages.js
 function isLangChainMessage(message) {
   return typeof message?._getType === "function";
 }
@@ -1784,7 +1854,7 @@ function convertLangChainMessageToExample(message) {
   return converted;
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/warn.js
+// node_modules/langsmith/dist/utils/warn.js
 var warnedMessages = {};
 function warnOnce(message) {
   if (!warnedMessages[message]) {
@@ -1793,7 +1863,7 @@ function warnOnce(message) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/xxhash/xxhash.js
+// node_modules/langsmith/dist/utils/xxhash/xxhash.js
 var n = (n2) => BigInt(n2);
 var PRIME32_1 = n("0x9E3779B1");
 var PRIME32_2 = n("0x85EBCA77");
@@ -2073,7 +2143,7 @@ function xxh128ToBytes(hash128) {
   return result;
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/_uuid.js
+// node_modules/langsmith/dist/utils/_uuid.js
 var UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function assertUuid(str, which) {
   if (!UUID_REGEX.test(str)) {
@@ -2135,7 +2205,7 @@ function nonCryptographicUuid7Deterministic(originalId, key) {
   return bytesToUuid(b);
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/error.js
+// node_modules/langsmith/dist/utils/error.js
 function getInvalidPromptIdentifierMsg(identifier) {
   return `Invalid prompt identifier format: "${identifier}". Expected one of:
   - "prompt-name" (for private prompts)
@@ -2172,6 +2242,9 @@ var LangSmithNotFoundError = class extends Error {
 function isLangSmithNotFoundError(error2) {
   return error2 != null && typeof error2 === "object" && "name" in error2 && error2?.name === "LangSmithNotFoundError";
 }
+function isLangSmithConflictError(error2) {
+  return error2 != null && typeof error2 === "object" && "name" in error2 && error2?.name === "LangSmithConflictError";
+}
 async function raiseForStatus(response, context, consumeOnSuccess) {
   let errorBody;
   if (response.ok) {
@@ -2187,7 +2260,7 @@ async function raiseForStatus(response, context, consumeOnSuccess) {
       if (errorCode === "org_scoped_key_requires_workspace") {
         errorBody = "This API key is org-scoped and requires workspace specification. Please provide 'workspaceId' parameter, or set LANGSMITH_WORKSPACE_ID environment variable.";
       }
-    } catch (e) {
+    } catch (_e) {
       const errorWithStatus = new Error(`${response.status} ${response.statusText}`);
       errorWithStatus.status = response?.status;
       throw errorWithStatus;
@@ -2196,7 +2269,7 @@ async function raiseForStatus(response, context, consumeOnSuccess) {
   if (errorBody === void 0) {
     try {
       errorBody = await response.text();
-    } catch (e) {
+    } catch (_e) {
       errorBody = "";
     }
   }
@@ -2228,8 +2301,8 @@ function isConflictingEndpointsError(err) {
   return typeof err === "object" && err !== null && err.code === ERR_CONFLICTING_ENDPOINTS;
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/prompts.js
-function parsePromptIdentifier(identifier) {
+// node_modules/langsmith/dist/utils/prompts.js
+function parseHubIdentifier(identifier) {
   if (!identifier || identifier.split("/").length > 2 || identifier.startsWith("/") || identifier.endsWith("/") || identifier.split(":").length > 2) {
     throw new Error(getInvalidPromptIdentifierMsg(identifier));
   }
@@ -2249,7 +2322,7 @@ function parsePromptIdentifier(identifier) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/fs.js
+// node_modules/langsmith/dist/utils/fs.js
 import * as nodeFs from "node:fs";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
@@ -2290,7 +2363,7 @@ function readFileSync2(filePath) {
   return nodeFs.readFileSync(filePath, "utf-8");
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/prompt_cache/index.js
+// node_modules/langsmith/dist/utils/prompt_cache/index.js
 function isStale(entry, ttlSeconds) {
   if (ttlSeconds === null) {
     return false;
@@ -2564,7 +2637,7 @@ var PromptCache = class {
 };
 var promptCacheSingleton = new PromptCache();
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/singletons/fetch.js
+// node_modules/langsmith/dist/singletons/fetch.js
 var DEFAULT_FETCH_IMPLEMENTATION = (...args) => fetch(...args);
 var globalFetchSupportsWebStreaming = void 0;
 var LANGSMITH_FETCH_IMPLEMENTATION_KEY = /* @__PURE__ */ Symbol.for("ls:fetch_implementation");
@@ -2589,7 +2662,7 @@ var _getFetchImplementation = (debug2) => {
   };
 };
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
+// node_modules/langsmith/dist/utils/fast-safe-stringify/index.js
 var LIMIT_REPLACE_NODE = "[...]";
 var CIRCULAR_REPLACE_NODE = { result: "[Circular]" };
 var arr = [];
@@ -2635,6 +2708,144 @@ function createDefaultReplacer(userReplacer) {
     }
     return serializeWellKnownTypes(val);
   };
+}
+function estimateSerializedSize(value) {
+  try {
+    let estimateString = function(s) {
+      const n2 = byteLen(s);
+      if (n2 > maxStringLen)
+        maxStringLen = n2;
+      return n2 + 2;
+    }, estimateByteArrayJson = function(byteLength) {
+      if (byteLength === 0)
+        return 2;
+      return 2 + byteLength * 4;
+    }, isDropped = function(v) {
+      return v === void 0 || typeof v === "function" || typeof v === "symbol";
+    }, estimateInArray = function(v) {
+      if (v === void 0 || typeof v === "function" || typeof v === "symbol") {
+        return 4;
+      }
+      return estimate(v);
+    }, estimate = function(val) {
+      if (val === null)
+        return 4;
+      if (val === void 0)
+        return 0;
+      const t = typeof val;
+      if (t === "boolean")
+        return 5;
+      if (t === "number") {
+        if (!Number.isFinite(val))
+          return 4;
+        return val.toString().length;
+      }
+      if (t === "bigint") {
+        return val.toString().length + 2;
+      }
+      if (t === "string")
+        return estimateString(val);
+      if (t === "function" || t === "symbol")
+        return 0;
+      const obj = val;
+      if (obj instanceof Date)
+        return 26;
+      if (obj instanceof RegExp)
+        return byteLen(obj.toString()) + 2;
+      if (obj instanceof Error) {
+        const name = obj.name ?? "";
+        const message = obj.message ?? "";
+        return 22 + byteLen(name) + byteLen(message);
+      }
+      if (typeof Buffer !== "undefined" && obj instanceof Buffer) {
+        return 28 + estimateByteArrayJson(obj.byteLength);
+      }
+      if (ArrayBuffer.isView(obj)) {
+        if (obj instanceof DataView) {
+          return 2;
+        }
+        const len = obj.length ?? 0;
+        const isFloat = obj instanceof Float32Array || obj instanceof Float64Array;
+        const perElement = isFloat ? 30 : 12;
+        return 2 + len * perElement;
+      }
+      if (obj instanceof ArrayBuffer) {
+        return 2;
+      }
+      if (ancestors.has(obj)) {
+        return 24;
+      }
+      if (typeof obj.toJSON === "function") {
+        let projected;
+        try {
+          projected = obj.toJSON("");
+        } catch {
+          return 16;
+        }
+        ancestors.add(obj);
+        const size3 = estimate(projected);
+        ancestors.delete(obj);
+        return size3;
+      }
+      ancestors.add(obj);
+      let size2;
+      if (Array.isArray(obj)) {
+        size2 = 2;
+        const len = obj.length;
+        for (let i = 0; i < len; i++) {
+          size2 += estimateInArray(obj[i]);
+          if (i < len - 1)
+            size2 += 1;
+        }
+      } else if (obj instanceof Map) {
+        size2 = 2;
+        let emitted = 0;
+        for (const [k, v] of obj) {
+          if (isDropped(v))
+            continue;
+          if (emitted > 0)
+            size2 += 1;
+          const keyStr = typeof k === "string" ? k : String(k);
+          size2 += byteLen(keyStr) + 3;
+          size2 += estimate(v);
+          emitted++;
+        }
+      } else if (obj instanceof Set) {
+        size2 = 2;
+        let emitted = 0;
+        for (const v of obj) {
+          if (emitted > 0)
+            size2 += 1;
+          size2 += estimateInArray(v);
+          emitted++;
+        }
+      } else {
+        size2 = 2;
+        let emitted = 0;
+        const keys = Object.keys(obj);
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i];
+          const v = obj[key];
+          if (isDropped(v))
+            continue;
+          if (emitted > 0)
+            size2 += 1;
+          size2 += byteLen(key) + 3;
+          size2 += estimate(v);
+          emitted++;
+        }
+      }
+      ancestors.delete(obj);
+      return size2;
+    };
+    const ancestors = /* @__PURE__ */ new Set();
+    let maxStringLen = 0;
+    const byteLen = typeof Buffer !== "undefined" && typeof Buffer.byteLength === "function" ? (s) => Buffer.byteLength(s, "utf8") : (s) => s.length;
+    const size = estimate(value);
+    return { size, maxStringLen };
+  } catch {
+    return { size: serialize(value).length, maxStringLen: 0 };
+  }
 }
 function serialize(obj, errorContext, replacer, spacer, options) {
   try {
@@ -2741,7 +2952,297 @@ function replaceGetterValues(replacer) {
   };
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/client.js
+// node_modules/langsmith/dist/utils/worker_threads.js
+import { Worker as NodeWorker } from "node:worker_threads";
+var Worker = NodeWorker;
+var WORKER_THREADS_AVAILABLE = true;
+
+// node_modules/langsmith/dist/utils/serialize_worker.js
+var WORKER_SOURCE = (
+  /* js */
+  `
+const { parentPort } = require("worker_threads");
+
+const CIRCULAR_REPLACE_NODE = { result: "[Circular]" };
+
+function serializeWellKnownTypes(val) {
+  if (val && typeof val === "object") {
+    if (val instanceof Map) return Object.fromEntries(val);
+    if (val instanceof Set) return Array.from(val);
+    if (val instanceof Date) return val.toISOString();
+    if (val instanceof RegExp) return val.toString();
+    if (val instanceof Error) return { name: val.name, message: val.message };
+  } else if (typeof val === "bigint") {
+    return val.toString();
+  }
+  return val;
+}
+
+function defaultReplacer(_key, val) {
+  return serializeWellKnownTypes(val);
+}
+
+// Decirculate in-place: replace circular refs with { result: "[Circular]" }
+// then restore after stringify. Mirrors fast-safe-stringify's decirc().
+const restoreStack = [];
+function decirc(val, k, stack, parent) {
+  if (typeof val === "object" && val !== null) {
+    for (let i = 0; i < stack.length; i++) {
+      if (stack[i] === val) {
+        const orig = parent[k];
+        parent[k] = CIRCULAR_REPLACE_NODE;
+        restoreStack.push([parent, k, orig]);
+        return;
+      }
+    }
+    stack.push(val);
+    if (Array.isArray(val)) {
+      for (let i = 0; i < val.length; i++) decirc(val[i], i, stack, val);
+    } else {
+      const normalized = serializeWellKnownTypes(val);
+      // Only recurse into normalized if it's still an object (arrays/objects),
+      // else it was replaced with a primitive (e.g. Date -> string).
+      if (normalized === val) {
+        const keys = Object.keys(val);
+        for (let i = 0; i < keys.length; i++) decirc(val[keys[i]], keys[i], stack, val);
+      }
+    }
+    stack.pop();
+  }
+}
+
+function serialize(obj) {
+  try {
+    return JSON.stringify(obj, defaultReplacer);
+  } catch (e) {
+    if (!String(e && e.message).includes("Converting circular structure to JSON")) {
+      return "[Unserializable]";
+    }
+    decirc(obj, "", [], { "": obj });
+    try {
+      return JSON.stringify(obj, defaultReplacer);
+    } catch (_) {
+      return "[unable to serialize, circular reference is too complex to analyze]";
+    } finally {
+      while (restoreStack.length) {
+        const [p, k, v] = restoreStack.pop();
+        p[k] = v;
+      }
+    }
+  }
+}
+
+parentPort.on("message", (msg) => {
+  const { id, op, payload } = msg;
+  try {
+    if (op === "serialize") {
+      const str = serialize(payload);
+      const buf = Buffer.from(str, "utf8");
+      // Slice into its own ArrayBuffer so we can transfer without dragging
+      // unrelated bytes from any shared pool buffer.
+      const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+      parentPort.postMessage({ id, bytes: ab, length: buf.byteLength }, [ab]);
+    } else if (op === "ping") {
+      parentPort.postMessage({ id });
+    } else {
+      parentPort.postMessage({ id, error: "unknown op: " + op });
+    }
+  } catch (e) {
+    parentPort.postMessage({ id, error: String((e && e.message) || e) });
+  }
+});
+`
+);
+var SerializeWorker = class {
+  constructor() {
+    Object.defineProperty(this, "worker", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: null
+    });
+    Object.defineProperty(this, "nextId", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: 1
+    });
+    Object.defineProperty(this, "pending", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /* @__PURE__ */ new Map()
+    });
+    Object.defineProperty(this, "disabled", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: false
+    });
+    Object.defineProperty(this, "startPromise", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: null
+    });
+  }
+  /**
+   * Try to construct the worker. Returns false if the runtime can't support
+   * it -- in that case callers must fall back to synchronous serialization.
+   * Kept async so callers don't have to branch on runtime -- the promise
+   * resolves synchronously on the microtask queue when the worker module
+   * is available, which is the common Node CJS/ESM path.
+   */
+  async ensureStarted() {
+    if (this.disabled)
+      return false;
+    if (this.worker !== null)
+      return true;
+    if (this.startPromise !== null)
+      return this.startPromise;
+    this.startPromise = this._start();
+    try {
+      return await this.startPromise;
+    } finally {
+      this.startPromise = null;
+    }
+  }
+  async _start() {
+    if (!WORKER_THREADS_AVAILABLE || Worker === null) {
+      this.disabled = true;
+      return false;
+    }
+    try {
+      const worker = new Worker(WORKER_SOURCE, { eval: true });
+      worker.on("message", (msg) => {
+        const p = this.pending.get(msg.id);
+        if (!p)
+          return;
+        this.pending.delete(msg.id);
+        if (msg.error) {
+          p.reject(new Error(msg.error));
+        } else if (msg.bytes && typeof msg.length === "number") {
+          p.resolve(new Uint8Array(msg.bytes, 0, msg.length));
+        } else {
+          p.reject(new Error("worker returned malformed message"));
+        }
+      });
+      worker.on("error", (err) => {
+        for (const [, p] of this.pending)
+          p.reject(err);
+        this.pending.clear();
+        this.disabled = true;
+        this.worker = null;
+      });
+      worker.on("exit", (code) => {
+        for (const [, p] of this.pending) {
+          p.reject(new Error(`worker exited with code ${code}`));
+        }
+        this.pending.clear();
+        this.worker = null;
+      });
+      worker.unref();
+      this.worker = worker;
+      return true;
+    } catch {
+      this.disabled = true;
+      return false;
+    }
+  }
+  /**
+   * Serialize a payload off-thread. Rejects with DataCloneError (or similar)
+   * if the payload contains non-cloneable values -- callers must catch and
+   * fall back to synchronous serialize().
+   *
+   * Resolves with null if the worker subsystem is unavailable entirely,
+   * so the caller can fall back without paying try/catch overhead.
+   */
+  async serialize(payload) {
+    const ok = await this.ensureStarted();
+    if (!ok)
+      return null;
+    const id = this.nextId++;
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+      try {
+        this.worker.postMessage({ id, op: "serialize", payload });
+      } catch (e) {
+        this.pending.delete(id);
+        reject(e);
+      }
+    });
+  }
+  async terminate() {
+    if (this.worker) {
+      await this.worker.terminate();
+      this.worker = null;
+    }
+    for (const [, p] of this.pending) {
+      p.reject(new Error("worker terminated"));
+    }
+    this.pending.clear();
+  }
+};
+var sharedWorker = null;
+function getSharedSerializeWorker() {
+  if (sharedWorker === null)
+    sharedWorker = new SerializeWorker();
+  return sharedWorker;
+}
+var LARGE_STRING_THRESHOLD = 64 * 1024;
+var NODE_BUDGET = 2048;
+function hasLargeString(value, threshold = LARGE_STRING_THRESHOLD, nodeBudget = NODE_BUDGET) {
+  if (value === null || typeof value !== "object") {
+    return typeof value === "string" && value.length >= threshold;
+  }
+  const stack = [value];
+  const seen = /* @__PURE__ */ new Set();
+  let visited = 0;
+  while (stack.length > 0) {
+    if (visited++ >= nodeBudget)
+      return false;
+    const cur = stack.pop();
+    if (cur === null || cur === void 0)
+      continue;
+    const t = typeof cur;
+    if (t === "string") {
+      if (cur.length >= threshold)
+        return true;
+      continue;
+    }
+    if (t !== "object")
+      continue;
+    const obj = cur;
+    if (seen.has(obj))
+      continue;
+    seen.add(obj);
+    if (obj instanceof Date || obj instanceof RegExp || obj instanceof Error || obj instanceof ArrayBuffer || ArrayBuffer.isView(obj)) {
+      continue;
+    }
+    if (Array.isArray(obj)) {
+      for (let i = obj.length - 1; i >= 0; i--)
+        stack.push(obj[i]);
+      continue;
+    }
+    if (obj instanceof Map) {
+      for (const [, v] of obj)
+        stack.push(v);
+      continue;
+    }
+    if (obj instanceof Set) {
+      for (const v of obj)
+        stack.push(v);
+      continue;
+    }
+    const keys = Object.keys(obj);
+    for (let i = keys.length - 1; i >= 0; i--) {
+      stack.push(obj[keys[i]]);
+    }
+  }
+  return false;
+}
+
+// node_modules/langsmith/dist/client.js
 function _ensureUTCTimestamp(ts) {
   if (typeof ts === "string" && ts.length > 0 && !ts.includes("Z") && !ts.includes("+") && !ts.includes("-", 10)) {
     return ts + "Z";
@@ -2859,7 +3360,7 @@ var AutoBatchQueue = class {
     const itemPromise = new Promise((resolve) => {
       itemPromiseResolve = resolve;
     });
-    const size = serialize(item.item, `Serializing run with id: ${item.item.id}`).length;
+    const size = getLangSmithEnvironmentVariable("PERF_OPTIMIZATION") === "true" ? estimateSerializedSize(item.item).size : serialize(item.item, `Serializing run with id: ${item.item.id}`).length;
     if (this.sizeBytes + size > this.maxSizeBytes && this.items.length > 0) {
       console.warn(`AutoBatchQueue size limit (${this.maxSizeBytes} bytes) exceeded. Dropping run with id: ${item.item.id}. Current queue size: ${this.sizeBytes} bytes, attempted addition: ${size} bytes.`);
       itemPromiseResolve();
@@ -2913,8 +3414,57 @@ var AutoBatchQueue = class {
   }
 };
 var Client = class _Client {
+  get tracingMode() {
+    return this._tracingMode;
+  }
   get _fetch() {
     return this.fetchImplementation || _getFetchImplementation(this.debug);
+  }
+  /**
+   * Serialize a payload for tracing, optionally offloading the work to a
+   * Node worker thread when LANGSMITH_PERF_OPTIMIZATION=true and the runtime
+   * supports worker_threads.
+   *
+   * Falls back to synchronous serialization when:
+   *  - the perf flag is off
+   *  - manualFlushMode is enabled (serverless: worker boot cost > benefit)
+   *  - worker_threads is unavailable (non-Node runtimes)
+   *  - the payload contains values that can't be structured-cloned across
+   *    threads (functions, non-cloneable class instances, streams, etc.)
+   *  - the worker throws for any other reason
+   *
+   * In all fallback cases the returned bytes are identical to the sync path.
+   */
+  _trackDrain(promise) {
+    this._pendingDrains.add(promise);
+    promise.finally(() => {
+      this._pendingDrains.delete(promise);
+    });
+  }
+  async _serializeBody(payload, errorContext) {
+    const perfOptIn = getLangSmithEnvironmentVariable("PERF_OPTIMIZATION") === "true";
+    if (!perfOptIn || this.manualFlushMode) {
+      return serialize(payload, errorContext);
+    }
+    if (!hasLargeString(payload)) {
+      return serialize(payload, errorContext);
+    }
+    if (this._serializeWorker === void 0) {
+      this._serializeWorker = getSharedSerializeWorker();
+    }
+    if (this._serializeWorker === null) {
+      return serialize(payload, errorContext);
+    }
+    try {
+      const bytes = await this._serializeWorker.serialize(payload);
+      if (bytes === null) {
+        this._serializeWorker = null;
+        return serialize(payload, errorContext);
+      }
+      return bytes;
+    } catch {
+      return serialize(payload, errorContext);
+    }
   }
   constructor(config = {}) {
     Object.defineProperty(this, "apiKey", {
@@ -2972,6 +3522,12 @@ var Client = class _Client {
       value: void 0
     });
     Object.defineProperty(this, "hideOutputs", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, "hideMetadata", {
       enumerable: true,
       configurable: true,
       writable: true,
@@ -3073,11 +3629,29 @@ var Client = class _Client {
       writable: true,
       value: false
     });
+    Object.defineProperty(this, "_serializeWorker", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, "_pendingDrains", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /* @__PURE__ */ new Set()
+    });
     Object.defineProperty(this, "langSmithToOTELTranslator", {
       enumerable: true,
       configurable: true,
       writable: true,
       value: void 0
+    });
+    Object.defineProperty(this, "_tracingMode", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "langsmith"
     });
     Object.defineProperty(this, "fetchImplementation", {
       enumerable: true,
@@ -3182,6 +3756,7 @@ var Client = class _Client {
     });
     this.hideInputs = config.hideInputs ?? config.anonymizer ?? defaultConfig.hideInputs;
     this.hideOutputs = config.hideOutputs ?? config.anonymizer ?? defaultConfig.hideOutputs;
+    this.hideMetadata = config.hideMetadata ?? defaultConfig.hideMetadata;
     this.omitTracedRuntimeInfo = config.omitTracedRuntimeInfo ?? false;
     this.autoBatchTracing = config.autoBatchTracing ?? this.autoBatchTracing;
     this.autoBatchQueue = new AutoBatchQueue(maxMemory);
@@ -3190,7 +3765,8 @@ var Client = class _Client {
     this.batchSizeLimit = config.batchSizeLimit;
     this.fetchOptions = config.fetchOptions || {};
     this.manualFlushMode = config.manualFlushMode ?? this.manualFlushMode;
-    if (getOtelEnabled()) {
+    this._tracingMode = resolveTracingMode(config.tracingMode);
+    if (this._tracingMode === "otel") {
       this.langSmithToOTELTranslator = new LangSmithToOTELTranslator();
     }
     this.cachedLSEnvVarsForMetadata = getLangSmithEnvVarsMetadata();
@@ -3216,12 +3792,14 @@ var Client = class _Client {
     const apiUrl = getLangSmithEnvironmentVariable("ENDPOINT") ?? DEFAULT_API_URL;
     const hideInputs = getLangSmithEnvironmentVariable("HIDE_INPUTS") === "true";
     const hideOutputs = getLangSmithEnvironmentVariable("HIDE_OUTPUTS") === "true";
+    const hideMetadata = getLangSmithEnvironmentVariable("HIDE_METADATA") === "true";
     return {
       apiUrl,
       apiKey,
       webUrl: void 0,
       hideInputs,
-      hideOutputs
+      hideOutputs,
+      hideMetadata
     };
   }
   getHostUrl() {
@@ -3244,6 +3822,9 @@ var Client = class _Client {
       return this.webUrl;
     } else if (this.apiUrl.split(".", 1)[0].includes("aws")) {
       this.webUrl = "https://aws.smith.langchain.com";
+      return this.webUrl;
+    } else if (this.apiUrl.split(".", 1)[0].includes("apac")) {
+      this.webUrl = "https://apac.smith.langchain.com";
       return this.webUrl;
     } else if (this.apiUrl.split(".", 1)[0].includes("beta")) {
       this.webUrl = "https://beta.smith.langchain.com";
@@ -3305,6 +3886,18 @@ var Client = class _Client {
     }
     return outputs;
   }
+  async processMetadata(metadata) {
+    if (this.hideMetadata === false) {
+      return metadata;
+    }
+    if (this.hideMetadata === true) {
+      return {};
+    }
+    if (typeof this.hideMetadata === "function") {
+      return this.hideMetadata(metadata);
+    }
+    return metadata;
+  }
   /**
    * Filter content from new_token events to prevent streaming LLM output
    * from being uploaded via events.
@@ -3328,6 +3921,12 @@ var Client = class _Client {
     }
     if (runParams.outputs !== void 0) {
       runParams.outputs = await this.processOutputs(runParams.outputs);
+    }
+    if (runParams.extra != null && "metadata" in runParams.extra) {
+      runParams.extra = {
+        ...runParams.extra,
+        metadata: await this.processMetadata(runParams.extra.metadata)
+      };
     }
     if (runParams.events !== void 0) {
       runParams.events = this._filterNewTokenEvents(runParams.events);
@@ -3538,7 +4137,7 @@ var Client = class _Client {
       if (maxBytes !== void 0 && maxBytes > 0) {
         try {
           const entries = await readdir2(directory);
-          const traceFiles = entries.filter((f) => f.startsWith("trace_") && f.endsWith(".json"));
+          const traceFiles = entries.filter((f2) => f2.startsWith("trace_") && f2.endsWith(".json"));
           let total = 0;
           for (const name of traceFiles) {
             const { size } = await stat2(path.join(directory, name));
@@ -3640,18 +4239,18 @@ var Client = class _Client {
     const sizeLimitBytes = await this._getBatchSizeLimitBytes();
     const sizeLimit = await this._getBatchSizeLimit();
     if (this.autoBatchQueue.sizeBytes > sizeLimitBytes || this.autoBatchQueue.items.length > sizeLimit) {
-      void this.drainAutoBatchQueue({
+      this._trackDrain(this.drainAutoBatchQueue({
         batchSizeLimitBytes: sizeLimitBytes,
         batchSizeLimit: sizeLimit
-      });
+      }));
     }
     if (this.autoBatchQueue.items.length > 0) {
       this.autoBatchTimeout = setTimeout(() => {
         this.autoBatchTimeout = void 0;
-        void this.drainAutoBatchQueue({
+        this._trackDrain(this.drainAutoBatchQueue({
           batchSizeLimitBytes: sizeLimitBytes,
           batchSizeLimit: sizeLimit
-        });
+        }));
       }, this.autoBatchAggregationDelayMs);
     }
     return itemPromise;
@@ -3660,7 +4259,7 @@ var Client = class _Client {
     const response = await this.caller.call(async () => {
       const res = await this._fetch(`${this.apiUrl}/info`, {
         method: "GET",
-        headers: { Accept: "application/json" },
+        headers: { ...this._mergedHeaders, Accept: "application/json" },
         signal: AbortSignal.timeout(SERVER_INFO_REQUEST_TIMEOUT_MS),
         ...this.fetchOptions
       });
@@ -3821,7 +4420,7 @@ var Client = class _Client {
     }
     if (batchChunks.post.length > 0 || batchChunks.patch.length > 0) {
       const runIds = batchChunks.post.map((item) => item.id).concat(batchChunks.patch.map((item) => item.id)).join(",");
-      await this._postBatchIngestRuns(serialize(batchChunks, `Ingesting runs with ids: ${runIds}`), options);
+      await this._postBatchIngestRuns(await this._serializeBody(batchChunks, `Ingesting runs with ids: ${runIds}`), options);
     }
   }
   async _postBatchIngestRuns(body, options) {
@@ -3913,7 +4512,7 @@ var Client = class _Client {
       for (const originalPayload of payloads) {
         const { inputs, outputs, events, extra, error: error2, serialized, attachments, ...payload } = originalPayload;
         const fields = { inputs, outputs, events, extra, error: error2, serialized };
-        const stringifiedPayload = serialize(payload, `Serializing for multipart ingestion of run with id: ${payload.id}`);
+        const stringifiedPayload = await this._serializeBody(payload, `Serializing for multipart ingestion of run with id: ${payload.id}`);
         accumulatedParts.push({
           name: `${method}.${payload.id}`,
           payload: new Blob([stringifiedPayload], {
@@ -3925,7 +4524,7 @@ var Client = class _Client {
           if (value === void 0) {
             continue;
           }
-          const stringifiedValue = serialize(value, `Serializing ${key} for multipart ingestion of run with id: ${payload.id}`);
+          const stringifiedValue = await this._serializeBody(value, `Serializing ${key} for multipart ingestion of run with id: ${payload.id}`);
           accumulatedParts.push({
             name: `${method}.${payload.id}.${key}`,
             payload: new Blob([stringifiedValue], {
@@ -4091,6 +4690,12 @@ Context: ${context}`);
     }
     if (run.outputs) {
       run.outputs = await this.processOutputs(run.outputs);
+    }
+    if (run.extra != null && "metadata" in run.extra) {
+      run.extra = {
+        ...run.extra,
+        metadata: await this.processMetadata(run.extra.metadata)
+      };
     }
     if (run.events) {
       run.events = this._filterNewTokenEvents(run.events);
@@ -4869,7 +5474,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
         return result.length > 0;
       }
       return true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }
@@ -6220,7 +6825,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     return json.commits[0].commit_hash;
   }
   async _likeOrUnlikePrompt(promptIdentifier, like) {
-    const [owner, promptName, _] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName, _] = parseHubIdentifier(promptIdentifier);
     const body = JSON.stringify({ like });
     const response = await this.caller.call(async () => {
       const res = await this._fetch(`${this.apiUrl}/likes/${owner}/${promptName}`, {
@@ -6239,7 +6844,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     return response.json();
   }
   async _getPromptUrl(promptIdentifier) {
-    const [owner, promptName, commitHash] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName, commitHash] = parseHubIdentifier(promptIdentifier);
     if (!await this._currentTenantIsOwner(owner)) {
       if (commitHash !== "latest") {
         return `${this.getHostUrl()}/hub/${owner}/${promptName}/${commitHash.substring(0, 8)}`;
@@ -6328,7 +6933,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
    * ```
    */
   async *listCommits(promptIdentifier) {
-    const [owner, promptName, _] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName, _] = parseHubIdentifier(promptIdentifier);
     for await (const commits of this._getPaginated(`/commits/${owner}/${promptName}/`, new URLSearchParams(), (res) => res.commits)) {
       yield* commits;
     }
@@ -6391,7 +6996,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
    * ```
    */
   async getPrompt(promptIdentifier) {
-    const [owner, promptName, _] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName, _] = parseHubIdentifier(promptIdentifier);
     const response = await this.caller.call(async () => {
       const res = await this._fetch(`${this.apiUrl}/repos/${owner}/${promptName}`, {
         method: "GET",
@@ -6449,7 +7054,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
 
         https://smith.langchain.com/prompts`);
     }
-    const [owner, promptName, _] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName, _] = parseHubIdentifier(promptIdentifier);
     if (!await this._currentTenantIsOwner(owner)) {
       throw await this._ownerConflictError("create a prompt", owner);
     }
@@ -6508,7 +7113,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     if (!await this.promptExists(promptIdentifier)) {
       throw new Error("Prompt does not exist, you must create it first.");
     }
-    const [owner, promptName, _] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName, _] = parseHubIdentifier(promptIdentifier);
     const resolvedParentCommitHash = options?.parentCommitHash === "latest" || !options?.parentCommitHash ? await this._getLatestCommitHash(`${owner}/${promptName}`) : options?.parentCommitHash;
     const payload = {
       manifest: JSON.parse(JSON.stringify(object)),
@@ -6692,7 +7297,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     if (!await this.promptExists(promptIdentifier)) {
       throw new Error("Prompt does not exist, you must create it first.");
     }
-    const [owner, promptName] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName] = parseHubIdentifier(promptIdentifier);
     if (!await this._currentTenantIsOwner(owner)) {
       throw await this._ownerConflictError("update a prompt", owner);
     }
@@ -6731,7 +7336,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     if (!await this.promptExists(promptIdentifier)) {
       throw new Error("Prompt does not exist, you must create it first.");
     }
-    const [owner, promptName, _] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName, _] = parseHubIdentifier(promptIdentifier);
     if (!await this._currentTenantIsOwner(owner)) {
       throw await this._ownerConflictError("delete a prompt", owner);
     }
@@ -6759,7 +7364,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
    * Fetch a prompt commit directly from the API (bypassing cache).
    */
   async _fetchPromptFromApi(promptIdentifier, options) {
-    const [owner, promptName, commitHash] = parsePromptIdentifier(promptIdentifier);
+    const [owner, promptName, commitHash] = parseHubIdentifier(promptIdentifier);
     const response = await this.caller.call(async () => {
       const res = await this._fetch(`${this.apiUrl}/commits/${owner}/${promptName}/${commitHash}${options?.includeModel ? "?include_model=true" : ""}`, {
         method: "GET",
@@ -6776,7 +7381,9 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       repo: promptName,
       commit_hash: result.commit_hash,
       manifest: result.manifest,
-      examples: result.examples
+      examples: result.examples,
+      hub_model_config: result.model_config,
+      hub_model_provider: result.model_provider
     };
   }
   async pullPromptCommit(promptIdentifier, options) {
@@ -6832,6 +7439,244 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       description: options?.commitDescription
     });
     return url;
+  }
+  /**
+   * Check if an agent repo exists.
+   */
+  async agentExists(identifier) {
+    const [owner, name] = parseHubIdentifier(identifier);
+    return this._repoExists(owner, name);
+  }
+  /**
+   * Check if a skill repo exists.
+   */
+  async skillExists(identifier) {
+    const [owner, name] = parseHubIdentifier(identifier);
+    return this._repoExists(owner, name);
+  }
+  /**
+   * Pull an agent directory from Hub.
+   * @param identifier The identifier (owner/name[:version]).
+   * @param options.version Commit hash or tag; overrides identifier's version.
+   */
+  async pullAgent(identifier, options) {
+    return await this._pullDirectory(identifier, "agent", options?.version);
+  }
+  /**
+   * Pull a skill directory from Hub.
+   */
+  async pullSkill(identifier, options) {
+    return await this._pullDirectory(identifier, "skill", options?.version);
+  }
+  /**
+   * Push an agent to Hub. Creates the repo if missing, patches metadata if
+   * provided, then commits the given files.
+   * @returns The URL of the resulting commit.
+   */
+  async pushAgent(identifier, options) {
+    return this._pushDirectory(identifier, "agent", options);
+  }
+  /**
+   * Push a skill to Hub.
+   */
+  async pushSkill(identifier, options) {
+    return this._pushDirectory(identifier, "skill", options);
+  }
+  /**
+   * Delete an agent and all its owned child file repos.
+   */
+  async deleteAgent(identifier) {
+    return this._deleteDirectory(identifier);
+  }
+  /**
+   * Delete a skill and all its owned child file repos.
+   */
+  async deleteSkill(identifier) {
+    return this._deleteDirectory(identifier);
+  }
+  /**
+   * List agent repos. Yields one at a time, auto-paginating.
+   */
+  async *listAgents(options) {
+    yield* this._listReposByType("agent", options);
+  }
+  /**
+   * List skill repos. Yields one at a time, auto-paginating.
+   */
+  async *listSkills(options) {
+    yield* this._listReposByType("skill", options);
+  }
+  async *_listReposByType(repoType, options) {
+    const params = new URLSearchParams();
+    params.append("repo_type", repoType);
+    params.append("is_archived", (!!options?.isArchived).toString());
+    if (options?.isPublic !== void 0) {
+      params.append("is_public", options.isPublic.toString());
+    }
+    if (options?.query) {
+      params.append("query", options.query);
+    }
+    for await (const repos of this._getPaginated("/repos", params, (res) => res.repos)) {
+      yield* repos;
+    }
+  }
+  async _pullDirectory(identifier, repoType, version) {
+    const [owner, name, parsedVersion] = parseHubIdentifier(identifier);
+    const resolvedVersion = version ?? (parsedVersion !== "latest" ? parsedVersion : void 0);
+    const url = new URL(`${this.apiUrl}/v1/platform/hub/repos/${owner}/${name}/directories`);
+    url.searchParams.set("repo_type", repoType);
+    if (resolvedVersion) {
+      url.searchParams.set("commit", resolvedVersion);
+    }
+    const response = await this.caller.call(async () => {
+      const res = await this._fetch(url.toString(), {
+        method: "GET",
+        headers: this._mergedHeaders,
+        signal: AbortSignal.timeout(this.timeout_ms),
+        ...this.fetchOptions
+      });
+      await raiseForStatus(res, "pull directory");
+      return res;
+    });
+    return await response.json();
+  }
+  async _pushDirectory(identifier, repoType, options) {
+    if (options.parentCommit !== void 0 && (options.parentCommit.length < 8 || options.parentCommit.length > 64)) {
+      throw new Error("parent_commit must be 8-64 characters");
+    }
+    const [owner, name] = parseHubIdentifier(identifier);
+    if (!await this._currentTenantIsOwner(owner)) {
+      throw await this._ownerConflictError(`push ${repoType}`, owner);
+    }
+    if (await this._repoExists(owner, name)) {
+      if (options.description !== void 0 || options.readme !== void 0 || options.tags !== void 0 || options.isPublic !== void 0) {
+        await this._updateRepoMetadata(owner, name, options);
+      }
+    } else {
+      const REPO_HANDLE_PATTERN = /^[a-z][a-z0-9-_]*$/;
+      if (!REPO_HANDLE_PATTERN.test(name)) {
+        throw new Error(`Invalid repo_handle ${JSON.stringify(name)}: must match ${REPO_HANDLE_PATTERN}`);
+      }
+      await this._createRepo(name, repoType, options);
+    }
+    const body = { files: options.files };
+    if (options.parentCommit) {
+      body.parent_commit = options.parentCommit;
+    }
+    const response = await this.caller.call(async () => {
+      const res = await this._fetch(`${this.apiUrl}/v1/platform/hub/repos/${owner}/${name}/directories/commits`, {
+        method: "POST",
+        headers: {
+          ...this._mergedHeaders,
+          "Content-Type": "application/json"
+        },
+        signal: AbortSignal.timeout(this.timeout_ms),
+        ...this.fetchOptions,
+        body: JSON.stringify(body)
+      });
+      await raiseForStatus(res, `push ${repoType}`);
+      return res;
+    });
+    const data = await response.json();
+    const commitHash = data.commit.commit_hash;
+    return `${this.getHostUrl()}/hub/${owner}/${name}:${commitHash.slice(0, 8)}`;
+  }
+  async _deleteDirectory(identifier) {
+    const [owner, name] = parseHubIdentifier(identifier);
+    if (!await this._currentTenantIsOwner(owner)) {
+      throw await this._ownerConflictError("delete", owner);
+    }
+    await this.caller.call(async () => {
+      const res = await this._fetch(`${this.apiUrl}/v1/platform/hub/repos/${owner}/${name}/directories`, {
+        method: "DELETE",
+        headers: this._mergedHeaders,
+        signal: AbortSignal.timeout(this.timeout_ms),
+        ...this.fetchOptions
+      });
+      await raiseForStatus(res, "delete directory");
+      return res;
+    });
+  }
+  async _repoExists(owner, name) {
+    try {
+      await this.caller.call(async () => {
+        const res = await this._fetch(`${this.apiUrl}/repos/${owner}/${name}`, {
+          method: "GET",
+          headers: this._mergedHeaders,
+          signal: AbortSignal.timeout(this.timeout_ms),
+          ...this.fetchOptions
+        });
+        await raiseForStatus(res, "check repo exists");
+        return res;
+      });
+      return true;
+    } catch (e) {
+      if (isLangSmithNotFoundError(e)) {
+        return false;
+      }
+      throw e;
+    }
+  }
+  async _createRepo(name, repoType, options) {
+    const body = {
+      repo_handle: name,
+      repo_type: repoType,
+      is_public: !!options.isPublic
+    };
+    if (options.description !== void 0)
+      body.description = options.description;
+    if (options.readme !== void 0)
+      body.readme = options.readme;
+    if (options.tags !== void 0)
+      body.tags = options.tags;
+    try {
+      await this.caller.call(async () => {
+        const res = await this._fetch(`${this.apiUrl}/repos/`, {
+          method: "POST",
+          headers: {
+            ...this._mergedHeaders,
+            "Content-Type": "application/json"
+          },
+          signal: AbortSignal.timeout(this.timeout_ms),
+          ...this.fetchOptions,
+          body: JSON.stringify(body)
+        });
+        await raiseForStatus(res, `create ${repoType}`);
+        return res;
+      });
+    } catch (e) {
+      if (isLangSmithConflictError(e)) {
+        return;
+      }
+      throw e;
+    }
+  }
+  async _updateRepoMetadata(owner, name, options) {
+    const body = {};
+    if (options.description !== void 0)
+      body.description = options.description;
+    if (options.readme !== void 0)
+      body.readme = options.readme;
+    if (options.tags !== void 0)
+      body.tags = options.tags;
+    if (options.isPublic !== void 0)
+      body.is_public = options.isPublic;
+    if (Object.keys(body).length === 0)
+      return;
+    await this.caller.call(async () => {
+      const res = await this._fetch(`${this.apiUrl}/repos/${owner}/${name}`, {
+        method: "PATCH",
+        headers: {
+          ...this._mergedHeaders,
+          "Content-Type": "application/json"
+        },
+        signal: AbortSignal.timeout(this.timeout_ms),
+        ...this.fetchOptions,
+        body: JSON.stringify(body)
+      });
+      await raiseForStatus(res, "update repo metadata");
+      return res;
+    });
   }
   /**
      * Clone a public dataset to your own langsmith tenant.
@@ -6896,7 +7741,7 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       } else {
         throw new Error(`Invalid public ${kind} URL: ${urlOrToken}`);
       }
-    } catch (error2) {
+    } catch (_error) {
       throw new Error(`Invalid public ${kind} URL or token: ${urlOrToken}`);
     }
   }
@@ -6936,6 +7781,9 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
       return Promise.resolve();
     }
     await new Promise((resolve) => setTimeout(resolve, 1));
+    while (this._pendingDrains.size > 0) {
+      await Promise.all([...this._pendingDrains]);
+    }
     await Promise.all([
       ...this.autoBatchQueue.items.map(({ itemPromise }) => itemPromise),
       this.batchIngestCaller.queue.onIdle()
@@ -6943,6 +7791,33 @@ Message: ${Array.isArray(result.detail) ? result.detail.join("\n") : "Unspecifie
     if (this.langSmithToOTELTranslator !== void 0) {
       await getDefaultOTLPTracerComponents()?.DEFAULT_LANGSMITH_SPAN_PROCESSOR?.forceFlush();
     }
+  }
+  /**
+   * Returns a string representation of the Client instance.
+   * This method is called when the object is converted to a string
+   * or logged, ensuring sensitive information like API keys is not exposed.
+   *
+   * @returns A string representation of the Client.
+   */
+  toString() {
+    const params = [`apiUrl=${JSON.stringify(this.apiUrl)}`];
+    if (this.webUrl !== void 0) {
+      params.push(`webUrl=${JSON.stringify(this.webUrl)}`);
+    }
+    if (this.workspaceId !== void 0) {
+      params.push(`workspaceId=${JSON.stringify(this.workspaceId)}`);
+    }
+    return `[LangSmithClient ${params.join(" ")}]`;
+  }
+  /**
+   * Custom inspect method for Node.js.
+   * This method is called when the object is inspected in the Node.js REPL
+   * or with console.log, ensuring sensitive information like API keys is not exposed.
+   *
+   * @returns A string representation of the Client for inspection.
+   */
+  [/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")]() {
+    return this.toString();
   }
 };
 Object.defineProperty(Client, "_fallbackDirsCreated", {
@@ -6955,7 +7830,7 @@ function isExampleCreate(input) {
   return "dataset_id" in input || "dataset_name" in input;
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/env.js
+// node_modules/langsmith/dist/env.js
 var isTracingEnabled = (tracingEnabled) => {
   if (tracingEnabled !== void 0) {
     return tracingEnabled;
@@ -6964,11 +7839,11 @@ var isTracingEnabled = (tracingEnabled) => {
   return !!envVars.find((envVar) => getLangSmithEnvironmentVariable(envVar) === "true");
 };
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/singletons/constants.js
+// node_modules/langsmith/dist/singletons/constants.js
 var _LC_CONTEXT_VARIABLES_KEY = /* @__PURE__ */ Symbol.for("lc:context_variables");
 var _REPLICA_TRACE_ROOTS_KEY = /* @__PURE__ */ Symbol.for("langsmith:replica_trace_roots");
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/context_vars.js
+// node_modules/langsmith/dist/utils/context_vars.js
 function getContextVar(runTree, key) {
   if (_LC_CONTEXT_VARIABLES_KEY in runTree) {
     const contextVars = runTree[_LC_CONTEXT_VARIABLES_KEY];
@@ -6985,13 +7860,13 @@ function setContextVar(runTree, key, value) {
   runTree[_LC_CONTEXT_VARIABLES_KEY] = contextVars;
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/utils/project.js
+// node_modules/langsmith/dist/utils/project.js
 var getDefaultProjectName = () => {
   return getLangSmithEnvironmentVariable("PROJECT") ?? getEnvironmentVariable("LANGCHAIN_SESSION") ?? // TODO: Deprecate
   "default";
 };
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/run_trees.js
+// node_modules/langsmith/dist/run_trees.js
 var TIMESTAMP_LENGTH = 36;
 var UUID_NAMESPACE_DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 function getReplicaKey(replica) {
@@ -7574,7 +8449,7 @@ var RunTree = class _RunTree {
     try {
       const runtimeEnv = getRuntimeEnvironment();
       if (this.replicas && this.replicas.length > 0) {
-        for (const { projectName, apiKey, apiUrl, workspaceId, reroot } of this.replicas) {
+        for (const { projectName, apiKey, apiUrl, workspaceId, reroot, client: replicaClient } of this.replicas) {
           const runCreate = this._remapForProject({
             projectName: projectName ?? this.project_name,
             runtimeEnv,
@@ -7585,7 +8460,8 @@ var RunTree = class _RunTree {
             apiKey,
             workspaceId
           });
-          await this.client.createRun(runCreate, {
+          const targetClient = replicaClient ?? this.client;
+          await targetClient.createRun(runCreate, {
             apiKey,
             apiUrl,
             workspaceId
@@ -7608,7 +8484,7 @@ var RunTree = class _RunTree {
   }
   async patchRun(options) {
     if (this.replicas && this.replicas.length > 0) {
-      for (const { projectName, apiKey, apiUrl, workspaceId, updates, reroot } of this.replicas) {
+      for (const { projectName, apiKey, apiUrl, workspaceId, updates, reroot, client: replicaClient } of this.replicas) {
         const runData = this._remapForProject({
           projectName: projectName ?? this.project_name,
           runtimeEnv: void 0,
@@ -7641,7 +8517,8 @@ var RunTree = class _RunTree {
         if (!options?.excludeInputs) {
           updatePayload.inputs = runData.inputs;
         }
-        await this.client.updateRun(runData.id, updatePayload, {
+        const targetClient = replicaClient ?? this.client;
+        await targetClient.updateRun(runData.id, updatePayload, {
           apiKey,
           apiUrl,
           workspaceId
@@ -7892,13 +8769,13 @@ function _checkEndpointEnvUnset(parsed) {
   }
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/uuid.js
+// node_modules/langsmith/dist/uuid.js
 function uuid7() {
   return v7_default();
 }
 
-// node_modules/.pnpm/langsmith@0.5.19/node_modules/langsmith/dist/index.js
-var __version__ = "0.5.19";
+// node_modules/langsmith/dist/index.js
+var __version__ = "0.5.26";
 
 // dist/logger.js
 import { appendFileSync, mkdirSync as mkdirSync3, statSync, renameSync as renameSync3 } from "node:fs";
@@ -7945,6 +8822,14 @@ function debug(message) {
 
 // dist/transcript.js
 import { readFileSync as readFileSync3, statSync as statSync2, openSync, readSync, closeSync } from "node:fs";
+
+// dist/constants.js
+var USER_PROMPT_TURN_NAME = "Claude Code Turn";
+var ASSISTANT_RUN_NAME = "Claude";
+var SKILL_RUN_NAME_PREFIX = "Skill";
+var SKILL_CONTENT_MAX_LENGTH = 2e3;
+
+// dist/transcript.js
 var MAX_FULL_READ_BYTES = 50 * 1024 * 1024;
 function readTranscript(filePath, afterLine = -1) {
   let size;
@@ -8071,6 +8956,25 @@ function isToolResult(msg) {
 function isAssistantMessage(msg) {
   return msg.type === "assistant";
 }
+function isMetaMessage(msg) {
+  return msg.isMeta === true;
+}
+function extractSlashCommandSkillName(content) {
+  const match = content.match(/<command-name>\/([^<]+)<\/command-name>/);
+  return match?.[1];
+}
+function extractSkillContent(msg) {
+  const content = msg.message?.content;
+  if (typeof content === "string") {
+    return content.slice(0, SKILL_CONTENT_MAX_LENGTH);
+  }
+  if (Array.isArray(content)) {
+    const textParts = content.filter((b) => b.type === "text" && typeof b.text === "string").map((b) => b.text);
+    const full = textParts.join("\n");
+    return full.slice(0, SKILL_CONTENT_MAX_LENGTH);
+  }
+  return void 0;
+}
 function stripModelDateSuffix(model) {
   return model.replace(/-\d{8}$/, "");
 }
@@ -8133,6 +9037,9 @@ function groupIntoTurns(messages) {
   let assistantOrder = [];
   let toolResults = [];
   let hasStopReasonEndTurn = false;
+  let pendingSlashSkillName;
+  let pendingSkillContent = {};
+  let skillCalls = [];
   function finalizeTurn(forceIncomplete = false) {
     if (!currentUser)
       return;
@@ -8153,7 +9060,8 @@ function groupIntoTurns(messages) {
         return {
           tool_use: tu,
           result: result ? { content: result.content, timestamp: result.timestamp } : void 0,
-          agentId: result?.agentId
+          agentId: result?.agentId,
+          skillContent: pendingSkillContent[tu.id]
         };
       });
       llmCalls.push({
@@ -8169,11 +9077,34 @@ function groupIntoTurns(messages) {
       userContent: currentUser.message.content,
       userTimestamp: currentUser.timestamp,
       llmCalls,
+      skillCalls,
       isComplete
     });
   }
   for (const msg of messages) {
+    if (isMetaMessage(msg)) {
+      const skillContent = extractSkillContent(msg);
+      const sourceToolUseId = msg.sourceToolUseID;
+      if (sourceToolUseId) {
+        if (skillContent) {
+          pendingSkillContent[sourceToolUseId] = skillContent;
+        }
+      } else if (pendingSlashSkillName) {
+        skillCalls.push({
+          name: pendingSlashSkillName,
+          content: skillContent ?? "",
+          timestamp: msg.timestamp ?? (/* @__PURE__ */ new Date()).toISOString()
+        });
+        pendingSlashSkillName = void 0;
+      }
+      continue;
+    }
     if (isHumanMessage(msg)) {
+      const contentStr = typeof msg.message.content === "string" ? msg.message.content : "";
+      const slashSkillName = extractSlashCommandSkillName(contentStr);
+      if (slashSkillName) {
+        pendingSlashSkillName = slashSkillName;
+      }
       const isNewTurn = currentUser === null || msg.promptId !== void 0 && msg.promptId !== currentPromptId || msg.promptId === void 0;
       if (isNewTurn) {
         finalizeTurn();
@@ -8183,6 +9114,8 @@ function groupIntoTurns(messages) {
         assistantOrder = [];
         toolResults = [];
         hasStopReasonEndTurn = false;
+        pendingSkillContent = {};
+        skillCalls = [];
       }
     } else if (isToolResult(msg)) {
       toolResults.push(msg);
@@ -8263,10 +9196,6 @@ function getSessionState(state, sessionId) {
   };
 }
 var SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
-
-// dist/constants.js
-var USER_PROMPT_TURN_NAME = "Claude Code Turn";
-var ASSISTANT_RUN_NAME = "Claude";
 
 // dist/langsmith.js
 var client = void 0;
@@ -8413,14 +9342,17 @@ async function traceTurn(options) {
       const toolRunId = uuid7();
       const toolDottedOrderSegment = generateDottedOrderSegment(toolStartTime, toolRunId);
       const toolDottedOrder = `${parentDottedOrder}.${toolDottedOrderSegment}`;
+      const isSkillToolCall = toolCall.tool_use.name === "Skill" && toolCall.skillContent;
+      const toolRunName = isSkillToolCall ? `${SKILL_RUN_NAME_PREFIX}: ${toolCall.tool_use.input.skill ?? toolCall.tool_use.name}` : toolCall.tool_use.name;
+      const toolOutput = toolCall.skillContent ? toolCall.skillContent : toolCall.result?.content ?? "No result";
       const runTree2 = new RunTree({
         client,
         replicas,
         id: toolRunId,
-        name: toolCall.tool_use.name,
+        name: toolRunName,
         run_type: "tool",
         inputs: { input: toolCall.tool_use.input },
-        outputs: { output: toolCall.result?.content ?? "No result" },
+        outputs: { output: toolOutput },
         project_name: project,
         start_time: toolStartTime,
         end_time: toolEndTime,
@@ -8428,7 +9360,15 @@ async function traceTurn(options) {
         trace_id: traceId,
         dotted_order: toolDottedOrder,
         extra: {
-          metadata: { thread_id: sessionId, ls_integration: "claude-code", ...customMetadata }
+          metadata: {
+            thread_id: sessionId,
+            ls_integration: "claude-code",
+            ...isSkillToolCall ? {
+              skill_name: toolCall.tool_use.input.skill ?? toolCall.tool_use.name,
+              skill_invocation_type: "agent_initiated"
+            } : {},
+            ...customMetadata
+          }
         }
       });
       await runTree2.postRun();
@@ -8482,6 +9422,37 @@ async function traceTurn(options) {
       });
     }
     lastEndTime = assistantEndTime;
+  }
+  for (const skillCall of turn.skillCalls ?? []) {
+    const skillRunId = uuid7();
+    const skillDottedOrderSegment = generateDottedOrderSegment(skillCall.timestamp, skillRunId);
+    const skillDottedOrder = `${parentDottedOrder}.${skillDottedOrderSegment}`;
+    const runTree = new RunTree({
+      client,
+      replicas,
+      id: skillRunId,
+      name: `${SKILL_RUN_NAME_PREFIX}: ${skillCall.name}`,
+      run_type: "tool",
+      inputs: { input: { skill: skillCall.name, args: skillCall.args } },
+      outputs: { output: skillCall.content },
+      project_name: project,
+      start_time: skillCall.timestamp,
+      end_time: skillCall.timestamp,
+      parent_run_id: turnRunId,
+      trace_id: traceId,
+      dotted_order: skillDottedOrder,
+      extra: {
+        metadata: {
+          thread_id: sessionId,
+          ls_integration: "claude-code",
+          tool_name: "Skill",
+          skill_name: skillCall.name,
+          skill_invocation_type: "slash_command",
+          ...customMetadata
+        }
+      }
+    });
+    await runTree.postRun();
   }
   if (shouldCreateTurn) {
     const turnOutputs = accumulatedMessages.filter((m) => m.role !== "user");
